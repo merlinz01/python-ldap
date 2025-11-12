@@ -1,9 +1,3 @@
-[build-system]
-requires = [
-    "setuptools",
-]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "python-ldap"
 license.text = "python-ldap"  # Replace with 'license' once Python 3.8 is dropped
@@ -52,23 +46,33 @@ Repository = "https://github.com/python-ldap/python-ldap"
 Download = "https://pypi.org/project/python-ldap/"
 Changelog = "https://github.com/python-ldap/python-ldap/blob/main/CHANGES"
 
-
+[build-system]
+requires = [
+    "setuptools",
+    "tomli >= 1.0.0 ; python_version < '3.11'",
+]
+build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 zip-safe = false
 include-package-data = true
 license-files = ["LICENCE", "LICENCE.MIT"]
-# Explicitly list all Python modules
 py-modules = ["ldapurl", "ldif"]
+package-dir = {"" = "Lib"}
+packages = { find = { where = ["Lib"] } }
+dynamic = { version = {attr = "ldap.pkginfo.__version__"} }
 
-[tool.setuptools.dynamic]
-version = {attr = "ldap.pkginfo.__version__"}
+[tool.python-ldap.config]
+sources = []
+# Uncomment and customize these for your platform if needed:
+# library_dirs = ["/usr/lib", "/usr/lib64", "/usr/local/lib"]
+# include_dirs = ["/usr/include", "/usr/local/include"]
+# libs = ["ldap", "lber"]
+# libs = ["ldap_r", "lber"] # thread-safe libldap_r
+defines = ["HAVE_SASL", "HAVE_TLS"]
+extra_compile_args = []
+extra_objects = []
 
-[tool.setuptools.packages.find]
-where = ["Lib"]
-
-[tool.setuptools.package-dir]
-"" = "Lib"
 
 [tool.isort]
 line_length = 88
@@ -105,3 +109,11 @@ exclude_lines = [
 [tool.coverage.html]
 directory = "build/htmlcov"
 title = "python-ldap coverage report"
+
+[tool.pytest.ini_options]
+testpaths = ["Tests"]
+python_files = ["t_*.py"]
+filterwarnings = [
+    "error",
+    "ignore::ldap.LDAPBytesWarning",
+]

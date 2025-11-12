@@ -1,3 +1,7 @@
+# DEPRECATED: This file is provided for reference only.
+# Modern approach: Copy these settings to pyproject.toml [tool.python-ldap._ldap] section
+# See the main pyproject.toml for the current recommended configuration format.
+#
 # Win32 setup.cfg
 # You have to edit this file to reflect your system configuration
 
