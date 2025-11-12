@@ -8,6 +8,7 @@ while pyproject.toml handles all project metadata, dependencies, and other setti
 
 import os
 import sys
+from typing import ClassVar
 
 from setuptools import Extension, setup
 
@@ -22,14 +23,14 @@ import pkginfo  # type: ignore[import]
 
 # -- A class describing the features and requirements of OpenLDAP 2.0
 class OpenLDAP2:
-    library_dirs = []
-    include_dirs = []
-    extra_compile_args = []
-    extra_link_args = []
-    extra_objects = []
-    libs = ["ldap", "lber"]
-    defines = []
-    extra_files = []
+    library_dirs: ClassVar = []
+    include_dirs: ClassVar = []
+    extra_compile_args: ClassVar = []
+    extra_link_args: ClassVar = []
+    extra_objects: ClassVar = []
+    libs: ClassVar = ["ldap", "lber"]
+    defines: ClassVar = []
+    extra_files: ClassVar = []
 
 
 LDAP_CLASS = OpenLDAP2
@@ -80,7 +81,7 @@ setup(
                 "Modules/constants_generated.h",
             ],
             libraries=LDAP_CLASS.libs,
-            include_dirs=["Modules"] + LDAP_CLASS.include_dirs,
+            include_dirs=["Modules", *LDAP_CLASS.include_dirs],
             library_dirs=LDAP_CLASS.library_dirs,
             extra_compile_args=LDAP_CLASS.extra_compile_args,
             extra_link_args=LDAP_CLASS.extra_link_args,

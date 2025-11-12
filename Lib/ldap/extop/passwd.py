@@ -6,10 +6,10 @@ See https://www.python-ldap.org/ for details.
 """
 
 from ldap.extop import ExtendedResponse
+from pyasn1.codec.der import decoder
 
 # Imports from pyasn1
-from pyasn1.type import namedtype, univ, tag
-from pyasn1.codec.der import decoder
+from pyasn1.type import namedtype, tag, univ
 
 
 class PasswordModifyResponse(ExtendedResponse):
@@ -18,15 +18,16 @@ class PasswordModifyResponse(ExtendedResponse):
     class PasswordModifyResponseValue(univ.Sequence):
         componentType = namedtype.NamedTypes(
             namedtype.OptionalNamedType(
-                'genPasswd',
+                "genPasswd",
                 univ.OctetString().subtype(
-                    implicitTag=tag.Tag(tag.tagClassContext,
-                                        tag.tagFormatSimple, 0)
-                )
+                    implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0)
+                ),
             )
         )
 
     def decodeResponseValue(self, value):
-        respValue, _ = decoder.decode(value, asn1Spec=self.PasswordModifyResponseValue())
-        self.genPasswd = bytes(respValue.getComponentByName('genPasswd'))
+        respValue, _ = decoder.decode(
+            value, asn1Spec=self.PasswordModifyResponseValue()
+        )
+        self.genPasswd = bytes(respValue.getComponentByName("genPasswd"))
         return self.genPasswd

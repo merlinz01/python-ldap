@@ -6,16 +6,15 @@ See https://www.python-ldap.org/ for project details.
 
 from uuid import UUID
 
-# Imports from pyasn1
-from pyasn1.type import tag, namedtype, namedval, univ, constraint
-from pyasn1.codec.ber import encoder, decoder
+from ldap import RES_INTERMEDIATE, RES_SEARCH_ENTRY, RES_SEARCH_RESULT
+from ldap.controls import KNOWN_RESPONSE_CONTROLS, RequestControl, ResponseControl
+from pyasn1.codec.ber import decoder, encoder
 
-from ldap.pkginfo import __version__, __author__, __license__
-from ldap.controls import RequestControl, ResponseControl, KNOWN_RESPONSE_CONTROLS
-from ldap import RES_SEARCH_RESULT, RES_SEARCH_ENTRY, RES_INTERMEDIATE
+# Imports from pyasn1
+from pyasn1.type import constraint, namedtype, namedval, tag, univ
 
 __all__ = [
-    'SyncreplConsumer',
+    "SyncreplConsumer",
 ]
 
 
@@ -23,6 +22,7 @@ class SyncUUID(univ.OctetString):
     """
     syncUUID ::= OCTET STRING (SIZE(16))
     """
+
     subtypeSpec = constraint.ValueSizeConstraint(16, 16)
 
 
@@ -34,37 +34,36 @@ class SyncCookie(univ.OctetString):
 
 class SyncRequestMode(univ.Enumerated):
     """
-           mode ENUMERATED {
-               -- 0 unused
-               refreshOnly       (1),
-               -- 2 reserved
-               refreshAndPersist (3)
-           },
+    mode ENUMERATED {
+        -- 0 unused
+        refreshOnly       (1),
+        -- 2 reserved
+        refreshAndPersist (3)
+    },
     """
-    namedValues = namedval.NamedValues(
-        ('refreshOnly', 1),
-        ('refreshAndPersist', 3)
-    )
+
+    namedValues = namedval.NamedValues(("refreshOnly", 1), ("refreshAndPersist", 3))
     subtypeSpec = univ.Enumerated.subtypeSpec + constraint.SingleValueConstraint(1, 3)
 
 
 class SyncRequestValue(univ.Sequence):
     """
-       syncRequestValue ::= SEQUENCE {
-           mode ENUMERATED {
-               -- 0 unused
-               refreshOnly       (1),
-               -- 2 reserved
-               refreshAndPersist (3)
-           },
-           cookie     syncCookie OPTIONAL,
-           reloadHint BOOLEAN DEFAULT FALSE
-       }
+    syncRequestValue ::= SEQUENCE {
+        mode ENUMERATED {
+            -- 0 unused
+            refreshOnly       (1),
+            -- 2 reserved
+            refreshAndPersist (3)
+        },
+        cookie     syncCookie OPTIONAL,
+        reloadHint BOOLEAN DEFAULT FALSE
+    }
     """
+
     componentType = namedtype.NamedTypes(
-        namedtype.NamedType('mode', SyncRequestMode()),
-        namedtype.OptionalNamedType('cookie', SyncCookie()),
-        namedtype.DefaultedNamedType('reloadHint', univ.Boolean(False))
+        namedtype.NamedType("mode", SyncRequestMode()),
+        namedtype.OptionalNamedType("cookie", SyncCookie()),
+        namedtype.DefaultedNamedType("reloadHint", univ.Boolean(False)),
     )
 
 
@@ -78,9 +77,12 @@ class SyncRequestControl(RequestControl):
     The Sync Request Control is only applicable to the SearchRequest
     Message.
     """
-    controlType = '1.3.6.1.4.1.4203.1.9.1.1'
 
-    def __init__(self, criticality=1, cookie=None, mode='refreshOnly', reloadHint=False):
+    controlType = "1.3.6.1.4.1.4203.1.9.1.1"
+
+    def __init__(
+        self, criticality=1, cookie=None, mode="refreshOnly", reloadHint=False
+    ):
         self.criticality = criticality
         self.cookie = cookie
         self.mode = mode
@@ -88,49 +90,50 @@ class SyncRequestControl(RequestControl):
 
     def encodeControlValue(self):
         rcv = SyncRequestValue()
-        rcv.setComponentByName('mode', SyncRequestMode(self.mode))
+        rcv.setComponentByName("mode", SyncRequestMode(self.mode))
         if self.cookie is not None:
-            rcv.setComponentByName('cookie', SyncCookie(self.cookie))
+            rcv.setComponentByName("cookie", SyncCookie(self.cookie))
         if self.reloadHint:
-            rcv.setComponentByName('reloadHint', univ.Boolean(self.reloadHint))
+            rcv.setComponentByName("reloadHint", univ.Boolean(self.reloadHint))
         return encoder.encode(rcv)
 
 
 class SyncStateOp(univ.Enumerated):
     """
-           state ENUMERATED {
-               present (0),
-               add (1),
-               modify (2),
-               delete (3)
-           },
+    state ENUMERATED {
+        present (0),
+        add (1),
+        modify (2),
+        delete (3)
+    },
     """
+
     namedValues = namedval.NamedValues(
-        ('present', 0),
-        ('add', 1),
-        ('modify', 2),
-        ('delete', 3)
+        ("present", 0), ("add", 1), ("modify", 2), ("delete", 3)
     )
-    subtypeSpec = univ.Enumerated.subtypeSpec + constraint.SingleValueConstraint(0, 1, 2, 3)
+    subtypeSpec = univ.Enumerated.subtypeSpec + constraint.SingleValueConstraint(
+        0, 1, 2, 3
+    )
 
 
 class SyncStateValue(univ.Sequence):
     """
-       syncStateValue ::= SEQUENCE {
-           state ENUMERATED {
-               present (0),
-               add (1),
-               modify (2),
-               delete (3)
-           },
-           entryUUID syncUUID,
-           cookie    syncCookie OPTIONAL
-       }
+    syncStateValue ::= SEQUENCE {
+        state ENUMERATED {
+            present (0),
+            add (1),
+            modify (2),
+            delete (3)
+        },
+        entryUUID syncUUID,
+        cookie    syncCookie OPTIONAL
+    }
     """
+
     componentType = namedtype.NamedTypes(
-        namedtype.NamedType('state', SyncStateOp()),
-        namedtype.NamedType('entryUUID', SyncUUID()),
-        namedtype.OptionalNamedType('cookie', SyncCookie())
+        namedtype.NamedType("state", SyncStateOp()),
+        namedtype.NamedType("entryUUID", SyncUUID()),
+        namedtype.OptionalNamedType("cookie", SyncCookie()),
     )
 
 
@@ -144,14 +147,15 @@ class SyncStateControl(ResponseControl):
     The Sync State Control is only applicable to SearchResultEntry and
     SearchResultReference Messages.
     """
-    controlType = '1.3.6.1.4.1.4203.1.9.1.2'
-    opnames = ('present', 'add', 'modify', 'delete')
+
+    controlType = "1.3.6.1.4.1.4203.1.9.1.2"
+    opnames = ("present", "add", "modify", "delete")
 
     def decodeControlValue(self, encodedControlValue):
         d = decoder.decode(encodedControlValue, asn1Spec=SyncStateValue())
-        state = d[0].getComponentByName('state')
-        uuid = UUID(bytes=bytes(d[0].getComponentByName('entryUUID')))
-        cookie = d[0].getComponentByName('cookie')
+        state = d[0].getComponentByName("state")
+        uuid = UUID(bytes=bytes(d[0].getComponentByName("entryUUID")))
+        cookie = d[0].getComponentByName("cookie")
         if cookie is not None and cookie.hasValue():
             self.cookie = str(cookie)
         else:
@@ -159,19 +163,21 @@ class SyncStateControl(ResponseControl):
         self.state = self.__class__.opnames[int(state)]
         self.entryUUID = str(uuid)
 
+
 KNOWN_RESPONSE_CONTROLS[SyncStateControl.controlType] = SyncStateControl
 
 
 class SyncDoneValue(univ.Sequence):
     """
-       syncDoneValue ::= SEQUENCE {
-           cookie          syncCookie OPTIONAL,
-           refreshDeletes  BOOLEAN DEFAULT FALSE
-       }
+    syncDoneValue ::= SEQUENCE {
+        cookie          syncCookie OPTIONAL,
+        refreshDeletes  BOOLEAN DEFAULT FALSE
+    }
     """
+
     componentType = namedtype.NamedTypes(
-        namedtype.OptionalNamedType('cookie', SyncCookie()),
-        namedtype.DefaultedNamedType('refreshDeletes', univ.Boolean(False))
+        namedtype.OptionalNamedType("cookie", SyncCookie()),
+        namedtype.DefaultedNamedType("refreshDeletes", univ.Boolean(False)),
     )
 
 
@@ -185,47 +191,51 @@ class SyncDoneControl(ResponseControl):
     The Sync Done Control is only applicable to the SearchResultDone
     Message.
     """
-    controlType = '1.3.6.1.4.1.4203.1.9.1.3'
+
+    controlType = "1.3.6.1.4.1.4203.1.9.1.3"
 
     def decodeControlValue(self, encodedControlValue):
         d = decoder.decode(encodedControlValue, asn1Spec=SyncDoneValue())
-        cookie = d[0].getComponentByName('cookie')
+        cookie = d[0].getComponentByName("cookie")
         if cookie.hasValue():
             self.cookie = str(cookie)
         else:
             self.cookie = None
-        refresh_deletes = d[0].getComponentByName('refreshDeletes')
+        refresh_deletes = d[0].getComponentByName("refreshDeletes")
         if refresh_deletes.hasValue():
             self.refreshDeletes = bool(refresh_deletes)
         else:
             self.refreshDeletes = None
+
 
 KNOWN_RESPONSE_CONTROLS[SyncDoneControl.controlType] = SyncDoneControl
 
 
 class RefreshDelete(univ.Sequence):
     """
-           refreshDelete  [1] SEQUENCE {
-               cookie         syncCookie OPTIONAL,
-               refreshDone    BOOLEAN DEFAULT TRUE
-           },
+    refreshDelete  [1] SEQUENCE {
+        cookie         syncCookie OPTIONAL,
+        refreshDone    BOOLEAN DEFAULT TRUE
+    },
     """
+
     componentType = namedtype.NamedTypes(
-        namedtype.OptionalNamedType('cookie', SyncCookie()),
-        namedtype.DefaultedNamedType('refreshDone', univ.Boolean(True))
+        namedtype.OptionalNamedType("cookie", SyncCookie()),
+        namedtype.DefaultedNamedType("refreshDone", univ.Boolean(True)),
     )
 
 
 class RefreshPresent(univ.Sequence):
     """
-           refreshPresent [2] SEQUENCE {
-               cookie         syncCookie OPTIONAL,
-               refreshDone    BOOLEAN DEFAULT TRUE
-           },
+    refreshPresent [2] SEQUENCE {
+        cookie         syncCookie OPTIONAL,
+        refreshDone    BOOLEAN DEFAULT TRUE
+    },
     """
+
     componentType = namedtype.NamedTypes(
-        namedtype.OptionalNamedType('cookie', SyncCookie()),
-        namedtype.DefaultedNamedType('refreshDone', univ.Boolean(True))
+        namedtype.OptionalNamedType("cookie", SyncCookie()),
+        namedtype.DefaultedNamedType("refreshDone", univ.Boolean(True)),
     )
 
 
@@ -233,68 +243,71 @@ class SyncUUIDs(univ.SetOf):
     """
     syncUUIDs      SET OF syncUUID
     """
+
     componentType = SyncUUID()
 
 
 class SyncIdSet(univ.Sequence):
     """
-     syncIdSet      [3] SEQUENCE {
-         cookie         syncCookie OPTIONAL,
-         refreshDeletes BOOLEAN DEFAULT FALSE,
-         syncUUIDs      SET OF syncUUID
-     }
+    syncIdSet      [3] SEQUENCE {
+        cookie         syncCookie OPTIONAL,
+        refreshDeletes BOOLEAN DEFAULT FALSE,
+        syncUUIDs      SET OF syncUUID
+    }
     """
+
     componentType = namedtype.NamedTypes(
-        namedtype.OptionalNamedType('cookie', SyncCookie()),
-        namedtype.DefaultedNamedType('refreshDeletes', univ.Boolean(False)),
-        namedtype.NamedType('syncUUIDs', SyncUUIDs())
+        namedtype.OptionalNamedType("cookie", SyncCookie()),
+        namedtype.DefaultedNamedType("refreshDeletes", univ.Boolean(False)),
+        namedtype.NamedType("syncUUIDs", SyncUUIDs()),
     )
 
 
 class SyncInfoValue(univ.Choice):
     """
-       syncInfoValue ::= CHOICE {
-           newcookie      [0] syncCookie,
-           refreshDelete  [1] SEQUENCE {
-               cookie         syncCookie OPTIONAL,
-               refreshDone    BOOLEAN DEFAULT TRUE
-           },
-           refreshPresent [2] SEQUENCE {
-               cookie         syncCookie OPTIONAL,
-               refreshDone    BOOLEAN DEFAULT TRUE
-           },
-           syncIdSet      [3] SEQUENCE {
-               cookie         syncCookie OPTIONAL,
-               refreshDeletes BOOLEAN DEFAULT FALSE,
-               syncUUIDs      SET OF syncUUID
-           }
-       }
+    syncInfoValue ::= CHOICE {
+        newcookie      [0] syncCookie,
+        refreshDelete  [1] SEQUENCE {
+            cookie         syncCookie OPTIONAL,
+            refreshDone    BOOLEAN DEFAULT TRUE
+        },
+        refreshPresent [2] SEQUENCE {
+            cookie         syncCookie OPTIONAL,
+            refreshDone    BOOLEAN DEFAULT TRUE
+        },
+        syncIdSet      [3] SEQUENCE {
+            cookie         syncCookie OPTIONAL,
+            refreshDeletes BOOLEAN DEFAULT FALSE,
+            syncUUIDs      SET OF syncUUID
+        }
+    }
     """
+
     componentType = namedtype.NamedTypes(
         namedtype.NamedType(
-            'newcookie',
+            "newcookie",
             SyncCookie().subtype(
                 implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0)
-            )
+            ),
         ),
         namedtype.NamedType(
-            'refreshDelete',
+            "refreshDelete",
             RefreshDelete().subtype(
                 implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 1)
-            )
+            ),
         ),
         namedtype.NamedType(
-            'refreshPresent',
+            "refreshPresent",
             RefreshPresent().subtype(
                 implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 2)
-            )
+            ),
         ),
         namedtype.NamedType(
-            'syncIdSet',
+            "syncIdSet",
             SyncIdSet().subtype(
                 implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 3)
-            )
-        )
+            ),
+        ),
     )
 
 
@@ -305,7 +318,8 @@ class SyncInfoMessage:
     1.3.6.1.4.1.4203.1.9.1.4 and responseValue contains a BER-encoded
     syncInfoValue.  The criticality is FALSE (and hence absent).
     """
-    responseName = '1.3.6.1.4.1.4203.1.9.1.4'
+
+    responseName = "1.3.6.1.4.1.4203.1.9.1.4"
 
     def __init__(self, encodedMessage):
         d = decoder.decode(encodedMessage, asn1Spec=SyncInfoValue())
@@ -321,26 +335,26 @@ class SyncInfoMessage:
         comp = d[0].getComponent()
 
         if comp is not None and comp.hasValue():
-            if attr == 'newcookie':
+            if attr == "newcookie":
                 self.newcookie = str(comp)
                 return
 
             val = {}
 
-            cookie = comp.getComponentByName('cookie')
+            cookie = comp.getComponentByName("cookie")
             if cookie.hasValue():
-                val['cookie'] = str(cookie)
+                val["cookie"] = str(cookie)
 
-            if attr.startswith('refresh'):
-                val['refreshDone'] = bool(comp.getComponentByName('refreshDone'))
-            elif attr == 'syncIdSet':
+            if attr.startswith("refresh"):
+                val["refreshDone"] = bool(comp.getComponentByName("refreshDone"))
+            elif attr == "syncIdSet":
                 uuids = []
-                ids = comp.getComponentByName('syncUUIDs')
+                ids = comp.getComponentByName("syncUUIDs")
                 for i in range(len(ids)):
                     uuid = UUID(bytes=bytes(ids.getComponentByPosition(i)))
                     uuids.append(str(uuid))
-                val['syncUUIDs'] = uuids
-                val['refreshDeletes'] = bool(comp.getComponentByName('refreshDeletes'))
+                val["syncUUIDs"] = uuids
+                val["refreshDeletes"] = bool(comp.getComponentByName("refreshDeletes"))
 
             setattr(self, attr, val)
 
@@ -350,7 +364,9 @@ class SyncreplConsumer:
     SyncreplConsumer - LDAP syncrepl consumer object.
     """
 
-    def syncrepl_search(self, base, scope, mode='refreshOnly', cookie=None, **search_args):
+    def syncrepl_search(
+        self, base, scope, mode="refreshOnly", cookie=None, **search_args
+    ):
         """
         Starts syncrepl search operation.
 
@@ -379,10 +395,10 @@ class SyncreplConsumer:
 
         syncreq = SyncRequestControl(cookie=cookie, mode=mode)
 
-        if 'serverctrls' in search_args:
-            search_args['serverctrls'] += [syncreq]
+        if "serverctrls" in search_args:
+            search_args["serverctrls"] += [syncreq]
         else:
-            search_args['serverctrls'] = [syncreq]
+            search_args["serverctrls"] = [syncreq]
 
         self.__refreshDone = False
         return self.search_ext(base, scope, **search_args)
@@ -400,7 +416,7 @@ class SyncreplConsumer:
 
         """
         while True:
-            type, msg, mid, ctrls, n, v = self.result4(
+            type, msg, _mid, ctrls, _n, _v = self.result4(
                 msgid=msgid,
                 timeout=timeout,
                 add_intermediates=1,
@@ -413,7 +429,7 @@ class SyncreplConsumer:
                 # look for a SyncDone control, save the cookie, and if necessary
                 # delete non-present entries.
                 for c in ctrls:
-                    if c.__class__.__name__ != 'SyncDoneControl':
+                    if c.__class__.__name__ != "SyncDoneControl":
                         continue
                     self.syncrepl_present(None, refreshDeletes=c.refreshDeletes)
                     if c.cookie is not None:
@@ -426,11 +442,11 @@ class SyncreplConsumer:
                 for m in msg:
                     dn, attrs, ctrls = m
                     for c in ctrls:
-                        if c.__class__.__name__ != 'SyncStateControl':
+                        if c.__class__.__name__ != "SyncStateControl":
                             continue
-                        if c.state == 'present':
+                        if c.state == "present":
                             self.syncrepl_present([c.entryUUID])
-                        elif c.state == 'delete':
+                        elif c.state == "delete":
                             self.syncrepl_delete([c.entryUUID])
                         else:
                             self.syncrepl_entry(dn, attrs, c.entryUUID)
@@ -451,29 +467,28 @@ class SyncreplConsumer:
                         self.syncrepl_set_cookie(sim.newcookie)
                     elif sim.refreshPresent is not None:
                         self.syncrepl_present(None, refreshDeletes=False)
-                        if 'cookie' in sim.refreshPresent:
-                            self.syncrepl_set_cookie(sim.refreshPresent['cookie'])
-                        if sim.refreshPresent['refreshDone']:
+                        if "cookie" in sim.refreshPresent:
+                            self.syncrepl_set_cookie(sim.refreshPresent["cookie"])
+                        if sim.refreshPresent["refreshDone"]:
                             self.__refreshDone = True
                             self.syncrepl_refreshdone()
                     elif sim.refreshDelete is not None:
                         self.syncrepl_present(None, refreshDeletes=True)
-                        if 'cookie' in sim.refreshDelete:
-                            self.syncrepl_set_cookie(sim.refreshDelete['cookie'])
-                        if sim.refreshDelete['refreshDone']:
+                        if "cookie" in sim.refreshDelete:
+                            self.syncrepl_set_cookie(sim.refreshDelete["cookie"])
+                        if sim.refreshDelete["refreshDone"]:
                             self.__refreshDone = True
                             self.syncrepl_refreshdone()
                     elif sim.syncIdSet is not None:
-                        if sim.syncIdSet['refreshDeletes'] is True:
-                            self.syncrepl_delete(sim.syncIdSet['syncUUIDs'])
+                        if sim.syncIdSet["refreshDeletes"] is True:
+                            self.syncrepl_delete(sim.syncIdSet["syncUUIDs"])
                         else:
-                            self.syncrepl_present(sim.syncIdSet['syncUUIDs'])
-                        if 'cookie' in sim.syncIdSet:
-                            self.syncrepl_set_cookie(sim.syncIdSet['cookie'])
+                            self.syncrepl_present(sim.syncIdSet["syncUUIDs"])
+                        if "cookie" in sim.syncIdSet:
+                            self.syncrepl_set_cookie(sim.syncIdSet["cookie"])
 
             if all == 0:
                 return True
-
 
     # virtual methods -- subclass must override these to do useful work
 

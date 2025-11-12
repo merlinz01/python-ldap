@@ -84,16 +84,7 @@ valgrind: build $(PYTHON_SUPP)
 	fi
 
 # Code autoformatter
-.PHONY: autoformat indent black black-check
-autoformat: indent black
-
-indent:
-	indent Modules/*.c
-	indent -npsl Modules/pythonldap.h
-	rm -f Modules/*.c~ Modules/*.h~
-
-black:
-	$(PYTHON) -m black $(CURDIR)
-
-black-check:
-	$(PYTHON) -m black $(CURDIR) --check
+.PHONY: format
+format:
+	ruff format
+	ruff check --fix

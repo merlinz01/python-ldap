@@ -3,6 +3,7 @@ Automatic tests for python-ldap's module ldif
 
 See https://www.python-ldap.org/ for details.
 """
+
 import os
 import textwrap
 import unittest
@@ -13,7 +14,7 @@ except ImportError:
     from io import StringIO
 
 # Switch off processing .ldaprc or ldap.conf before importing _ldap
-os.environ['LDAPNOINIT'] = '1'
+os.environ["LDAPNOINIT"] = "1"
 
 import ldif
 
@@ -24,11 +25,11 @@ class TestLDIFParser(unittest.TestCase):
     """
 
     def _parse_records(
-            self,
-            ldif_string,
-            ignored_attr_types=None,
-            max_entries=0,
-        ):
+        self,
+        ldif_string,
+        ignored_attr_types=None,
+        max_entries=0,
+    ):
         """
         Parse LDIF data in `ldif_string' into list of records
         """
@@ -38,14 +39,11 @@ class TestLDIFParser(unittest.TestCase):
             ignored_attr_types=ignored_attr_types,
             max_entries=max_entries,
         )
-        parser_method = getattr(
-            ldif_parser,
-            'parse_%s_records' % self.record_type
-        )
+        parser_method = getattr(ldif_parser, f"parse_{self.record_type}_records")
         parser_method()
-        if self.record_type == 'entry':
+        if self.record_type == "entry":
             return ldif_parser.all_records
-        elif self.record_type == 'change':
+        elif self.record_type == "change":
             return ldif_parser.all_modify_changes
 
     def _unparse_records(self, records):
@@ -54,20 +52,16 @@ class TestLDIFParser(unittest.TestCase):
         """
         ldif_file = StringIO()
         ldif_writer = ldif.LDIFWriter(ldif_file)
-        if self.record_type == 'entry':
+        if self.record_type == "entry":
             for dn, entry in records:
                 ldif_writer.unparse(dn, entry)
-        elif self.record_type == 'change':
-            for dn, modops, controls in records:
+        elif self.record_type == "change":
+            for dn, modops, _controls in records:
                 ldif_writer.unparse(dn, modops)
         return ldif_file.getvalue()
 
     def check_records(
-            self,
-            ldif_string,
-            records,
-            ignored_attr_types=None,
-            max_entries=0
+        self, ldif_string, records, ignored_attr_types=None, max_entries=0
     ):
         """
         Checks whether entry records in `ldif_string' gets correctly parsed
@@ -93,7 +87,8 @@ class TestEntryRecords(TestLDIFParser):
     """
     Various LDIF test cases
     """
-    record_type='entry'
+
+    record_type = "entry"
 
     def test_empty(self):
         self.check_records(
@@ -101,7 +96,7 @@ class TestEntryRecords(TestLDIFParser):
             version: 1
 
             """,
-            []
+            [],
         )
 
     def test_simple(self):
@@ -116,12 +111,12 @@ class TestEntryRecords(TestLDIFParser):
             """,
             [
                 (
-                    'cn=x,cn=y,cn=z',
+                    "cn=x,cn=y,cn=z",
                     {
-                        'attrib': [b'value', b'value2'],
+                        "attrib": [b"value", b"value2"],
                     },
                 ),
-            ]
+            ],
         )
 
     def test_simple2(self):
@@ -134,12 +129,12 @@ class TestEntryRecords(TestLDIFParser):
             """,
             [
                 (
-                    'cn=x,cn=y,cn=z',
+                    "cn=x,cn=y,cn=z",
                     {
-                        'attrib': [b'value', b'value2'],
+                        "attrib": [b"value", b"value2"],
                     },
                 ),
-            ]
+            ],
         )
 
     def test_multiple(self):
@@ -158,20 +153,20 @@ class TestEntryRecords(TestLDIFParser):
             """,
             [
                 (
-                    'cn=x,cn=y,cn=z',
+                    "cn=x,cn=y,cn=z",
                     {
-                        'attrib': [b'value', b'value2'],
-                        'a': [b'v'],
+                        "attrib": [b"value", b"value2"],
+                        "a": [b"v"],
                     },
                 ),
                 (
-                    'cn=a,cn=b,cn=c',
+                    "cn=a,cn=b,cn=c",
                     {
-                        'attrib': [b'value2', b'value3'],
-                        'b': [b'v'],
+                        "attrib": [b"value2", b"value3"],
+                        "b": [b"v"],
                     },
                 ),
-            ]
+            ],
         )
 
     def test_folded(self):
@@ -184,15 +179,17 @@ class TestEntryRecords(TestLDIFParser):
              value
             attrib2: %s
 
-            """ % ('asdf.'*20), [
+            """
+            % ("asdf." * 20),
+            [
                 (
-                    'cn=x,cn=y,cn=z',
+                    "cn=x,cn=y,cn=z",
                     {
-                        'attrib': [b'very long line-folded value'],
-                        'attrib2': [b'asdf.'*20],
-                    }
+                        "attrib": [b"very long line-folded value"],
+                        "attrib2": [b"asdf." * 20],
+                    },
                 ),
-            ]
+            ],
         )
 
     def test_empty_attr_values(self):
@@ -207,13 +204,13 @@ class TestEntryRecords(TestLDIFParser):
             """,
             [
                 (
-                    'cn=x,cn=y,cn=z',
+                    "cn=x,cn=y,cn=z",
                     {
-                        'attrib1': [b'', b'foo'],
-                        'attrib2': [b'', b'foo'],
+                        "attrib1": [b"", b"foo"],
+                        "attrib2": [b"", b"foo"],
                     },
                 ),
-            ]
+            ],
         )
 
     def test_binary(self):
@@ -225,12 +222,12 @@ class TestEntryRecords(TestLDIFParser):
             """,
             [
                 (
-                    'cn=x,cn=y,cn=z',
+                    "cn=x,cn=y,cn=z",
                     {
-                        'attrib': [b'\t\0\n:%@'],
+                        "attrib": [b"\t\0\n:%@"],
                     },
                 ),
-            ]
+            ],
         )
 
     def test_binary2(self):
@@ -242,10 +239,10 @@ class TestEntryRecords(TestLDIFParser):
             """,
             [
                 (
-                    'cn=x,cn=y,cn=z',
-                    {'attrib': [b'\t\0\n:%@']},
+                    "cn=x,cn=y,cn=z",
+                    {"attrib": [b"\t\0\n:%@"]},
                 ),
-            ]
+            ],
         )
 
     def test_big_binary(self):
@@ -266,10 +263,10 @@ class TestEntryRecords(TestLDIFParser):
             """,
             [
                 (
-                    'cn=x,cn=y,cn=z',
-                    {'attrib': [500*b'\0']},
+                    "cn=x,cn=y,cn=z",
+                    {"attrib": [500 * b"\0"]},
                 ),
-            ]
+            ],
         )
 
     def test_unicode(self):
@@ -284,10 +281,10 @@ class TestEntryRecords(TestLDIFParser):
             """,
             [
                 (
-                    'cn=Michael Stroeder,dc=stroeder,dc=com',
-                    {'lastname': [b'Str\303\266der']},
+                    "cn=Michael Stroeder,dc=stroeder,dc=com",
+                    {"lastname": [b"Str\303\266der"]},
                 ),
-            ]
+            ],
         )
 
     def test_unencoded_unicode(self):
@@ -301,10 +298,10 @@ class TestEntryRecords(TestLDIFParser):
             """,
             [
                 (
-                    'cn=Michael Stroeder,dc=stroeder,dc=com',
-                    {'lastname': [b'Str\303\266der']},
+                    "cn=Michael Stroeder,dc=stroeder,dc=com",
+                    {"lastname": [b"Str\303\266der"]},
                 ),
-            ]
+            ],
         )
 
     def test_sorted(self):
@@ -318,14 +315,14 @@ class TestEntryRecords(TestLDIFParser):
             """,
             [
                 (
-                    'cn=x,cn=y,cn=z',
+                    "cn=x,cn=y,cn=z",
                     {
-                        'a': [b'value_a'],
-                        'b': [b'value_b'],
-                        'c': [b'value_c'],
-                    }
+                        "a": [b"value_a"],
+                        "b": [b"value_b"],
+                        "c": [b"value_c"],
+                    },
                 ),
-            ]
+            ],
         )
 
     def test_ignored_attr_types(self):
@@ -339,14 +336,14 @@ class TestEntryRecords(TestLDIFParser):
             """,
             [
                 (
-                    'cn=x,cn=y,cn=z',
+                    "cn=x,cn=y,cn=z",
                     {
-                        'a': [b'value_a'],
-                        'c': [b'value_c'],
-                    }
+                        "a": [b"value_a"],
+                        "c": [b"value_c"],
+                    },
                 ),
             ],
-            ignored_attr_types=['b'],
+            ignored_attr_types=["b"],
         )
 
     def test_comments(self):
@@ -369,22 +366,22 @@ class TestEntryRecords(TestLDIFParser):
             """,
             [
                 (
-                    'cn=x1,cn=y1,cn=z1',
+                    "cn=x1,cn=y1,cn=z1",
                     {
-                        'a1': [b'value_a1'],
-                        'b1': [b'value_b1'],
-                        'c1': [b'value_c1'],
-                    }
+                        "a1": [b"value_a1"],
+                        "b1": [b"value_b1"],
+                        "c1": [b"value_c1"],
+                    },
                 ),
                 (
-                    'cn=x2,cn=y2,cn=z2',
+                    "cn=x2,cn=y2,cn=z2",
                     {
-                        'a2': [b'value_a2'],
-                        'b2': [b'value_b2'],
-                        'c2': [b'value_c2'],
-                    }
+                        "a2": [b"value_a2"],
+                        "b2": [b"value_b2"],
+                        "c2": [b"value_c2"],
+                    },
                 ),
-            ]
+            ],
         )
 
     def test_max_entries(self):
@@ -409,21 +406,21 @@ class TestEntryRecords(TestLDIFParser):
             """,
             [
                 (
-                    'cn=x1,cn=y1,cn=z1',
+                    "cn=x1,cn=y1,cn=z1",
                     {
-                        'a1': [b'value_a1'],
-                        'b1': [b'value_b1'],
-                    }
+                        "a1": [b"value_a1"],
+                        "b1": [b"value_b1"],
+                    },
                 ),
                 (
-                    'cn=x2,cn=y2,cn=z2',
+                    "cn=x2,cn=y2,cn=z2",
                     {
-                        'a2': [b'value_a2'],
-                        'b2': [b'value_b2'],
-                    }
+                        "a2": [b"value_a2"],
+                        "b2": [b"value_b2"],
+                    },
                 ),
             ],
-            max_entries=2
+            max_entries=2,
         )
 
     def test_missing_trailing_line_separator(self):
@@ -440,20 +437,20 @@ class TestEntryRecords(TestLDIFParser):
             last: value_c2""",
             [
                 (
-                    'cn=x1,cn=y1,cn=z1',
+                    "cn=x1,cn=y1,cn=z1",
                     {
-                        'first': [b'value_a1'],
-                        'middle': [b'value_b1'],
-                        'last': [b'value_c1'],
-                    }
+                        "first": [b"value_a1"],
+                        "middle": [b"value_b1"],
+                        "last": [b"value_c1"],
+                    },
                 ),
                 (
-                    'cn=x2,cn=y2,cn=z2',
+                    "cn=x2,cn=y2,cn=z2",
                     {
-                        'first': [b'value_a2'],
-                        'middle': [b'value_b2'],
-                        'last': [b'value_c2'],
-                    }
+                        "first": [b"value_a2"],
+                        "middle": [b"value_b2"],
+                        "last": [b"value_c2"],
+                    },
                 ),
             ],
         )
@@ -479,20 +476,20 @@ class TestEntryRecords(TestLDIFParser):
             last: value_c2""",
             [
                 (
-                    'cn=x1,cn=y1,cn=z1',
+                    "cn=x1,cn=y1,cn=z1",
                     {
-                        'first': [b'value_a1'],
-                        'middle': [b'value_b1'],
-                        'last': [b'value_c1'],
-                    }
+                        "first": [b"value_a1"],
+                        "middle": [b"value_b1"],
+                        "last": [b"value_c1"],
+                    },
                 ),
                 (
-                    'cn=x2,cn=y2,cn=z2',
+                    "cn=x2,cn=y2,cn=z2",
                     {
-                        'first': [b'value_a2'],
-                        'middle': [b'value_b2'],
-                        'last': [b'value_c2'],
-                    }
+                        "first": [b"value_a2"],
+                        "middle": [b"value_b2"],
+                        "last": [b"value_c2"],
+                    },
                 ),
             ],
         )
@@ -515,14 +512,8 @@ class TestEntryRecords(TestLDIFParser):
 
             """,
             [
-                (
-                    'uid=one,dc=tld',
-                    {'uid': [b'one']}
-                ),
-                (
-                    'uid=two,dc=tld',
-                    {'uid': [b'two']}
-                ),
+                ("uid=one,dc=tld", {"uid": [b"one"]}),
+                ("uid=two,dc=tld", {"uid": [b"two"]}),
             ],
         )
 
@@ -531,7 +522,8 @@ class TestChangeRecords(TestLDIFParser):
     """
     Various LDIF test cases
     """
-    record_type='change'
+
+    record_type = "change"
 
     def test_empty(self):
         self.check_records(
@@ -565,12 +557,16 @@ class TestChangeRecords(TestLDIFParser):
             """,
             [
                 (
-                    'cn=x,cn=y,cn=z',
+                    "cn=x,cn=y,cn=z",
                     [
-                        (ldif.MOD_OP_INTEGER['replace'], 'attrib', [b'value', b'value2']),
-                        (ldif.MOD_OP_INTEGER['add'], 'attrib2', [b'value', b'value2']),
-                        (ldif.MOD_OP_INTEGER['delete'], 'attrib3', [b'value']),
-                        (ldif.MOD_OP_INTEGER['delete'], 'attrib4', None),
+                        (
+                            ldif.MOD_OP_INTEGER["replace"],
+                            "attrib",
+                            [b"value", b"value2"],
+                        ),
+                        (ldif.MOD_OP_INTEGER["add"], "attrib2", [b"value", b"value2"]),
+                        (ldif.MOD_OP_INTEGER["delete"], "attrib3", [b"value"]),
+                        (ldif.MOD_OP_INTEGER["delete"], "attrib4", None),
                     ],
                     None,
                 ),
@@ -619,22 +615,30 @@ class TestChangeRecords(TestLDIFParser):
             delete: attrib4""",
             [
                 (
-                    'cn=x,cn=y,cn=z',
+                    "cn=x,cn=y,cn=z",
                     [
-                        (ldif.MOD_OP_INTEGER['replace'], 'attrib', [b'value', b'value2']),
-                        (ldif.MOD_OP_INTEGER['add'], 'attrib2', [b'value', b'value2']),
-                        (ldif.MOD_OP_INTEGER['delete'], 'attrib3', [b'value']),
-                        (ldif.MOD_OP_INTEGER['delete'], 'attrib4', None),
+                        (
+                            ldif.MOD_OP_INTEGER["replace"],
+                            "attrib",
+                            [b"value", b"value2"],
+                        ),
+                        (ldif.MOD_OP_INTEGER["add"], "attrib2", [b"value", b"value2"]),
+                        (ldif.MOD_OP_INTEGER["delete"], "attrib3", [b"value"]),
+                        (ldif.MOD_OP_INTEGER["delete"], "attrib4", None),
                     ],
                     None,
                 ),
                 (
-                    'cn=foo,cn=bar',
+                    "cn=foo,cn=bar",
                     [
-                        (ldif.MOD_OP_INTEGER['replace'], 'attrib', [b'value', b'value2']),
-                        (ldif.MOD_OP_INTEGER['add'], 'attrib2', [b'value', b'value2']),
-                        (ldif.MOD_OP_INTEGER['delete'], 'attrib3', [b'value']),
-                        (ldif.MOD_OP_INTEGER['delete'], 'attrib4', None),
+                        (
+                            ldif.MOD_OP_INTEGER["replace"],
+                            "attrib",
+                            [b"value", b"value2"],
+                        ),
+                        (ldif.MOD_OP_INTEGER["add"], "attrib2", [b"value", b"value2"]),
+                        (ldif.MOD_OP_INTEGER["delete"], "attrib3", [b"value"]),
+                        (ldif.MOD_OP_INTEGER["delete"], "attrib4", None),
                     ],
                     None,
                 ),
@@ -659,10 +663,14 @@ class TestChangeRecords(TestLDIFParser):
             """,
             [
                 (
-                    'cn=x,cn=y,cn=z',
+                    "cn=x,cn=y,cn=z",
                     [
-                        (ldif.MOD_OP_INTEGER['replace'], 'attrib', [b'value', b'value2']),
-                        (ldif.MOD_OP_INTEGER['add'], 'attrib2', [b'value', b'value2']),
+                        (
+                            ldif.MOD_OP_INTEGER["replace"],
+                            "attrib",
+                            [b"value", b"value2"],
+                        ),
+                        (ldif.MOD_OP_INTEGER["add"], "attrib2", [b"value", b"value2"]),
                     ],
                     None,
                 ),
@@ -679,13 +687,13 @@ class TestChangeRecords(TestLDIFParser):
 
             """,
         ):
-            ldif_string = textwrap.dedent(bad_ldif_string).lstrip() + '\n'
+            ldif_string = textwrap.dedent(bad_ldif_string).lstrip() + "\n"
             try:
-                res = self._parse_records(ldif_string)
-            except ValueError as value_error:
+                self._parse_records(ldif_string)
+            except ValueError:
                 pass
             else:
-                self.fail("should have raised ValueError: %r" % bad_ldif_string)
+                self.fail(f"should have raised ValueError: {bad_ldif_string!r}")
 
     def test_mod_increment(self):
         self.check_records(
@@ -701,9 +709,9 @@ class TestChangeRecords(TestLDIFParser):
             """,
             [
                 (
-                    'cn=x,cn=y,cn=z',
+                    "cn=x,cn=y,cn=z",
                     [
-                        (ldif.MOD_OP_INTEGER['increment'], 'gidNumber', [b'1']),
+                        (ldif.MOD_OP_INTEGER["increment"], "gidNumber", [b"1"]),
                     ],
                     None,
                 ),
@@ -711,5 +719,5 @@ class TestChangeRecords(TestLDIFParser):
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

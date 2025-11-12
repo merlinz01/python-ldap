@@ -36,6 +36,21 @@ dependencies = [
     "pyasn1_modules >= 0.1.5",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "ruff >= 0.8.0",
+]
+test = [
+    "pytest >= 7.0.0",
+    "pytest-cov >= 4.0.0",
+    "coverage[toml] >= 7.0.0",
+]
+docs = [
+    "sphinx >= 5.0.0",
+    "sphinxcontrib-spelling >= 8.0.0",
+    "markdown >= 3.0.0",
+]
+
 [project.urls]
 Homepage = "https://www.python-ldap.org/"
 Documentation = "https://python-ldap.readthedocs.io/"
@@ -71,10 +86,49 @@ extra_compile_args = []
 extra_objects = []
 
 
-[tool.isort]
-line_length = 88
-known_first_party = ["ldap", "_ldap", "ldapurl", "ldif", "slapdtest"]
-sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+# Ruff - Modern Python linter and formatter
+# Replaces: black, isort, flake8, and more
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+src = ["Lib", "Demo", "Doc", "Tests", "setup.py"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "N",      # pep8-naming
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "SIM",    # flake8-simplify
+    "RUF",    # ruff-specific rules
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # do not perform function calls in argument defaults
+    "N801",   # class name should use CapWords convention (TestCase etc. are mixed case)
+    "N802",   # function name should be lowercase (LDAP uses mixed case)
+    "N803",   # argument name should be lowercase (LDAP uses mixed case)
+    "N806",   # variable in function should be lowercase
+    "N815",   # variable in class scope should be lowercase (used in tests)
+    "N816",   # variable in function scope should not be mixedCase (used in demos)
+    "N818",   # error class names should end with 'Error'
+    "N999",   # invalid module name (Tests)
+    "E741",   # ambiguous variable name 'l' (used in tests)
+    "SIM115", # use a context manager for opening files (tests use explicit open/close)
+    "SIM105", # use contextlib.suppress (tests prefer explicit try/except)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ldap", "_ldap", "ldapurl", "ldif", "slapdtest"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
 
 [tool.coverage.run]
 branch = true

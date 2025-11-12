@@ -3,17 +3,16 @@ Automatic tests for python-ldap's module ldap.sasl
 
 See https://www.python-ldap.org/ for details.
 """
+
 import os
 import unittest
 
 # Switch off processing .ldaprc or ldap.conf before importing _ldap
-os.environ['LDAPNOINIT'] = '1'
+os.environ["LDAPNOINIT"] = "1"
 
-from ldap.ldapobject import SimpleLDAPObject
 import ldap.sasl
-from slapdtest import SlapdTestCase
-from slapdtest import requires_ldapi, requires_sasl, requires_tls
-
+from ldap.ldapobject import SimpleLDAPObject
+from slapdtest import SlapdTestCase, requires_ldapi, requires_sasl, requires_tls
 
 LDIF = """
 dn: {suffix}
@@ -41,7 +40,7 @@ cn: {certuser}
 class TestSasl(SlapdTestCase):
     ldap_object_class = SimpleLDAPObject
     # from Tests/certs/client.pem
-    certuser = 'client'
+    certuser = "client"
     certsubject = "cn=client,ou=slapd-test,o=python-ldap,c=de"
 
     @classmethod
@@ -52,7 +51,7 @@ class TestSasl(SlapdTestCase):
             rootdn=cls.server.root_dn,
             rootcn=cls.server.root_cn,
             rootpw=cls.server.root_pw,
-            dc=cls.server.suffix.split(',')[0][3:],
+            dc=cls.server.suffix.split(",")[0][3:],
             certuser=cls.certuser,
             uid=os.geteuid(),
         )
@@ -70,8 +69,7 @@ class TestSasl(SlapdTestCase):
         auth = ldap.sasl.external("")
         ldap_conn.sasl_interactive_bind_s("", auth)
         self.assertEqual(
-            ldap_conn.whoami_s().lower(),
-            f"dn:{self.server.root_dn.lower()}"
+            ldap_conn.whoami_s().lower(), f"dn:{self.server.root_dn.lower()}"
         )
 
     @requires_tls()
@@ -86,10 +84,8 @@ class TestSasl(SlapdTestCase):
 
         auth = ldap.sasl.external()
         ldap_conn.sasl_interactive_bind_s("", auth)
-        self.assertEqual(
-            ldap_conn.whoami_s().lower(),
-            f"dn:{self.certsubject}"
-        )
+        self.assertEqual(ldap_conn.whoami_s().lower(), f"dn:{self.certsubject}")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

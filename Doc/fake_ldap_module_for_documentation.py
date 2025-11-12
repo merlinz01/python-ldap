@@ -14,17 +14,19 @@ See https://www.python-ldap.org/ for details.
 
 import sys
 
-# Cause `import _ldap` to import this module instead of the actual `_ldap`.
-sys.modules['_ldap'] = sys.modules[__name__]
-
 from constants import CONSTANTS
-from pkginfo import __version__
+
+# Cause `import _ldap` to import this module instead of the actual `_ldap`.
+sys.modules["_ldap"] = sys.modules[__name__]
+
 
 for constant in CONSTANTS:
     globals()[constant.name] = constant
 
+
 def get_option(num):
     pass
+
 
 class LDAPError:
     pass

@@ -5,77 +5,81 @@ by OpenLDAP functions
 See https://www.python-ldap.org/ for details.
 """
 
+import _ldap
+import ldap
+from ldap.controls import KNOWN_RESPONSE_CONTROLS, LDAPControl, RequestControl
 from ldap.pkginfo import __version__
 
-import _ldap
-assert _ldap.__version__==__version__, \
-       ImportError(f'ldap {__version__} and _ldap {_ldap.__version__} version mismatch!')
-
-import ldap
-
-from ldap.controls import RequestControl,LDAPControl,KNOWN_RESPONSE_CONTROLS
+assert _ldap.__version__ == __version__, ImportError(
+    f"ldap {__version__} and _ldap {_ldap.__version__} version mismatch!"
+)
 
 
 class AssertionControl(RequestControl):
-  """
-  LDAP Assertion control, as defined in RFC 4528
+    """
+    LDAP Assertion control, as defined in RFC 4528
 
-  filterstr
-    LDAP filter string specifying which assertions have to match
-    so that the server processes the operation
-  """
+    filterstr
+      LDAP filter string specifying which assertions have to match
+      so that the server processes the operation
+    """
 
-  controlType = ldap.CONTROL_ASSERT
-  def __init__(self,criticality=True,filterstr='(objectClass=*)'):
-    self.criticality = criticality
-    self.filterstr = filterstr
+    controlType = ldap.CONTROL_ASSERT
 
-  def encodeControlValue(self):
-    return _ldap.encode_assertion_control(self.filterstr)
+    def __init__(self, criticality=True, filterstr="(objectClass=*)"):
+        self.criticality = criticality
+        self.filterstr = filterstr
+
+    def encodeControlValue(self):
+        return _ldap.encode_assertion_control(self.filterstr)
+
 
 KNOWN_RESPONSE_CONTROLS[ldap.CONTROL_ASSERT] = AssertionControl
 
 
 class MatchedValuesControl(RequestControl):
-  """
-  LDAP Matched Values control, as defined in RFC 3876
+    """
+    LDAP Matched Values control, as defined in RFC 3876
 
-  filterstr
-    LDAP filter string specifying which attribute values
-    should be returned
-  """
+    filterstr
+      LDAP filter string specifying which attribute values
+      should be returned
+    """
 
-  controlType = ldap.CONTROL_VALUESRETURNFILTER
+    controlType = ldap.CONTROL_VALUESRETURNFILTER
 
-  def __init__(self,criticality=False,filterstr='(objectClass=*)'):
-    self.criticality = criticality
-    self.filterstr = filterstr
+    def __init__(self, criticality=False, filterstr="(objectClass=*)"):
+        self.criticality = criticality
+        self.filterstr = filterstr
 
-  def encodeControlValue(self):
-    return _ldap.encode_valuesreturnfilter_control(self.filterstr)
+    def encodeControlValue(self):
+        return _ldap.encode_valuesreturnfilter_control(self.filterstr)
+
 
 KNOWN_RESPONSE_CONTROLS[ldap.CONTROL_VALUESRETURNFILTER] = MatchedValuesControl
 
 
 class SimplePagedResultsControl(LDAPControl):
-  """
-  LDAP Control Extension for Simple Paged Results Manipulation
+    """
+    LDAP Control Extension for Simple Paged Results Manipulation
 
-  size
-    Page size requested (number of entries to be returned)
-  cookie
-    Cookie string received with last page
-  """
-  controlType = ldap.CONTROL_PAGEDRESULTS
+    size
+      Page size requested (number of entries to be returned)
+    cookie
+      Cookie string received with last page
+    """
 
-  def __init__(self,criticality=False,size=None,cookie=None):
-    self.criticality = criticality
-    self.size,self.cookie = size,cookie
+    controlType = ldap.CONTROL_PAGEDRESULTS
 
-  def encodeControlValue(self):
-    return _ldap.encode_page_control(self.size,self.cookie)
+    def __init__(self, criticality=False, size=None, cookie=None):
+        self.criticality = criticality
+        self.size, self.cookie = size, cookie
 
-  def decodeControlValue(self,encodedControlValue):
-    self.size,self.cookie = _ldap.decode_page_control(encodedControlValue)
+    def encodeControlValue(self):
+        return _ldap.encode_page_control(self.size, self.cookie)
+
+    def decodeControlValue(self, encodedControlValue):
+        self.size, self.cookie = _ldap.decode_page_control(encodedControlValue)
+
 
 KNOWN_RESPONSE_CONTROLS[ldap.CONTROL_PAGEDRESULTS] = SimplePagedResultsControl

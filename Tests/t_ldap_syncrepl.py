@@ -3,18 +3,18 @@ Automatic tests for python-ldap's module ldap.syncrepl
 
 See https://www.python-ldap.org/ for details.
 """
+
+import binascii
 import os
 import shelve
 import unittest
-import binascii
 
 # Switch off processing .ldaprc or ldap.conf before importing _ldap
-os.environ['LDAPNOINIT'] = '1'
+os.environ["LDAPNOINIT"] = "1"
 
 import ldap
 from ldap.ldapobject import SimpleLDAPObject
-from ldap.syncrepl import SyncreplConsumer, SyncInfoMessage
-
+from ldap.syncrepl import SyncInfoMessage, SyncreplConsumer
 from slapdtest import SlapdObject, SlapdTestCase
 
 # a template string for generating simple slapd.conf file
@@ -95,36 +95,36 @@ cn: Foo4
 
 # NOTE: For the dict, it needs to be kept up-to-date as we make changes!
 LDAP_ENTRIES = {
-    'ou=Container,dc=slapd-test,dc=python-ldap,dc=org': {
-        'objectClass': [b'organizationalUnit'],
-        'ou': [b'Container']
+    "ou=Container,dc=slapd-test,dc=python-ldap,dc=org": {
+        "objectClass": [b"organizationalUnit"],
+        "ou": [b"Container"],
     },
-    'cn=Foo2,dc=slapd-test,dc=python-ldap,dc=org': {
-        'objectClass': [b'organizationalRole'],
-        'cn': [b'Foo2']
+    "cn=Foo2,dc=slapd-test,dc=python-ldap,dc=org": {
+        "objectClass": [b"organizationalRole"],
+        "cn": [b"Foo2"],
     },
-    'cn=Foo4,ou=Container,dc=slapd-test,dc=python-ldap,dc=org': {
-        'objectClass': [b'organizationalRole'],
-        'cn': [b'Foo4']
+    "cn=Foo4,ou=Container,dc=slapd-test,dc=python-ldap,dc=org": {
+        "objectClass": [b"organizationalRole"],
+        "cn": [b"Foo4"],
     },
-    'cn=Manager,dc=slapd-test,dc=python-ldap,dc=org': {
-        'objectClass': [b'applicationProcess', b'simpleSecurityObject'],
-        'userPassword': [b'password'],
-        'cn': [b'Manager']
+    "cn=Manager,dc=slapd-test,dc=python-ldap,dc=org": {
+        "objectClass": [b"applicationProcess", b"simpleSecurityObject"],
+        "userPassword": [b"password"],
+        "cn": [b"Manager"],
     },
-    'cn=Foo3,dc=slapd-test,dc=python-ldap,dc=org': {
-        'objectClass': [b'organizationalRole'],
-        'cn': [b'Foo3']
+    "cn=Foo3,dc=slapd-test,dc=python-ldap,dc=org": {
+        "objectClass": [b"organizationalRole"],
+        "cn": [b"Foo3"],
     },
-    'cn=Foo1,dc=slapd-test,dc=python-ldap,dc=org': {
-        'objectClass': [b'organizationalRole'],
-        'cn': [b'Foo1']
+    "cn=Foo1,dc=slapd-test,dc=python-ldap,dc=org": {
+        "objectClass": [b"organizationalRole"],
+        "cn": [b"Foo1"],
     },
-    'dc=slapd-test,dc=python-ldap,dc=org': {
-        'objectClass': [b'dcObject', b'organization'],
-        'dc': [b'slapd-test'],
-        'o': [b'slapd-test']
-    }
+    "dc=slapd-test,dc=python-ldap,dc=org": {
+        "objectClass": [b"dcObject", b"organization"],
+        "dc": [b"slapd-test"],
+        "o": [b"slapd-test"],
+    },
 }
 
 
@@ -148,8 +148,8 @@ class SyncreplClient(SimpleLDAPObject, SyncreplConsumer):
 
         if storage is not None:
             self.data = shelve.open(storage)
-            self.uuid_dn = shelve.open(storage + 'uuid_dn')
-            self.dn_attrs = shelve.open(storage + 'dn_attrs')
+            self.uuid_dn = shelve.open(storage + "uuid_dn")
+            self.dn_attrs = shelve.open(storage + "dn_attrs")
             self.using_shelve = True
         else:
             self.data = {}
@@ -157,7 +157,7 @@ class SyncreplClient(SimpleLDAPObject, SyncreplConsumer):
             self.dn_attrs = {}
             self.using_shelve = False
 
-        self.data['cookie'] = None
+        self.data["cookie"] = None
         self.present = []
         self.refresh_done = False
 
@@ -194,23 +194,19 @@ class SyncreplClient(SimpleLDAPObject, SyncreplConsumer):
         """
         Take the params, add the syncrepl search ID, and call the proper poll.
         """
-        return self.syncrepl_poll(
-            self.search_id,
-            timeout=timeout,
-            all=all
-        )
+        return self.syncrepl_poll(self.search_id, timeout=timeout, all=all)
 
     def syncrepl_get_cookie(self):
         """
         Pull cookie from storage, if one exists.
         """
-        return self.data['cookie']
+        return self.data["cookie"]
 
     def syncrepl_set_cookie(self, cookie):
         """
         Update stored cookie.
         """
-        self.data['cookie'] = cookie
+        self.data["cookie"] = cookie
 
     def syncrepl_refreshdone(self):
         """
@@ -230,11 +226,10 @@ class SyncreplClient(SimpleLDAPObject, SyncreplConsumer):
         """
         Handles adds and changes (including DN changes).
         """
-        if uuid in self.uuid_dn:
-            # Catch changing DNs.
-            if dn != self.uuid_dn[uuid]:
-                # Delete data associated with old DN.
-                del self.dn_attrs[self.uuid_dn[uuid]]
+        # Catch changing DNs.
+        if uuid in self.uuid_dn and dn != self.uuid_dn[uuid]:
+            # Delete data associated with old DN.
+            del self.dn_attrs[self.uuid_dn[uuid]]
 
         # Update both maps.
         self.uuid_dn[uuid] = dn
@@ -281,12 +276,13 @@ class BaseSyncreplTests:
         super().setUpClass()
         # insert some Foo* objects via ldapadd
         cls.server.ldapadd(
-            LDIF_TEMPLATE % {
-                'suffix':cls.server.suffix,
-                'rootdn':cls.server.root_dn,
-                'rootcn':cls.server.root_cn,
-                'rootpw':cls.server.root_pw,
-                'dc': cls.server.suffix.split(',')[0][3:],
+            LDIF_TEMPLATE
+            % {
+                "suffix": cls.server.suffix,
+                "rootdn": cls.server.root_dn,
+                "rootcn": cls.server.root_cn,
+                "rootpw": cls.server.root_pw,
+                "dc": cls.server.suffix.split(",")[0][3:],
             }
         )
 
@@ -303,32 +299,20 @@ class BaseSyncreplTests:
         raise NotImplementedError
 
     def test_refreshOnly_search(self):
-        '''
+        """
         Test to see if we can initialize a syncrepl search.
-        '''
-        self.tester.search(
-            self.suffix,
-            'refreshOnly'
-        )
+        """
+        self.tester.search(self.suffix, "refreshOnly")
 
     def test_refreshAndPersist_search(self):
-        self.tester.search(
-            self.suffix,
-            'refreshAndPersist'
-        )
+        self.tester.search(self.suffix, "refreshAndPersist")
 
     def test_refreshOnly_poll_full(self):
         """
         Test doing a full refresh cycle, and check what we got.
         """
-        self.tester.search(
-            self.suffix,
-            'refreshOnly'
-        )
-        poll_result = self.tester.poll(
-            all=1,
-            timeout=None
-        )
+        self.tester.search(self.suffix, "refreshOnly")
+        poll_result = self.tester.poll(all=1, timeout=None)
         self.assertFalse(poll_result)
         self.assertEqual(self.tester.dn_attrs, LDAP_ENTRIES)
 
@@ -336,17 +320,11 @@ class BaseSyncreplTests:
         """
         Test the refresh part of refresh-and-persist, and check what we got.
         """
-        self.tester.search(
-            self.suffix,
-            'refreshAndPersist'
-        )
+        self.tester.search(self.suffix, "refreshAndPersist")
 
         # Make sure to stop the test before going into persist mode.
         while self.tester.refresh_done is not True:
-            poll_result = self.tester.poll(
-                all=0,
-                timeout=None
-            )
+            poll_result = self.tester.poll(all=0, timeout=None)
             self.assertTrue(poll_result)
 
         self.assertEqual(self.tester.dn_attrs, LDAP_ENTRIES)
@@ -355,17 +333,11 @@ class BaseSyncreplTests:
         """
         Make sure refreshAndPersist can handle a search with timeouts.
         """
-        self.tester.search(
-            self.suffix,
-            'refreshAndPersist'
-        )
+        self.tester.search(self.suffix, "refreshAndPersist")
 
         # Run a quick refresh, that shouldn't have any changes.
         while self.tester.refresh_done is not True:
-            poll_result = self.tester.poll(
-                all=0,
-                timeout=None
-            )
+            poll_result = self.tester.poll(all=0, timeout=None)
             self.assertTrue(poll_result)
 
         # Again, server data should not have changed.
@@ -373,28 +345,17 @@ class BaseSyncreplTests:
 
         # Run a search with timeout.
         # Nothing is changing the server, so it shoud timeout.
-        self.assertRaises(
-            ldap.TIMEOUT,
-            self.tester.poll,
-            all=0,
-            timeout=1
-        )
+        self.assertRaises(ldap.TIMEOUT, self.tester.poll, all=0, timeout=1)
 
     def test_refreshAndPersist_cancelled(self):
         """
         Make sure refreshAndPersist can handle cancelling a syncrepl search.
         """
-        self.tester.search(
-            self.suffix,
-            'refreshAndPersist'
-        )
+        self.tester.search(self.suffix, "refreshAndPersist")
 
         # Run a quick refresh, that shouldn't have any changes.
         while self.tester.refresh_done is not True:
-            poll_result = self.tester.poll(
-                all=0,
-                timeout=None
-            )
+            poll_result = self.tester.poll(all=0, timeout=None)
             self.assertTrue(poll_result)
 
         # Again, server data should not have changed.
@@ -404,16 +365,10 @@ class BaseSyncreplTests:
         self.tester.cancel()
 
         # Run another poll, without timeout, but which should cancel out.
-        self.assertRaises(
-            ldap.CANCELLED,
-            self.tester.poll,
-            all=1,
-            timeout=None
-        )
+        self.assertRaises(ldap.CANCELLED, self.tester.poll, all=1, timeout=None)
 
         # Server data should still be intact.
         self.assertEqual(self.tester.dn_attrs, LDAP_ENTRIES)
-
 
     # TODO:
     # * Make a new client, with a data store, and close.  Then, load a new
@@ -437,7 +392,7 @@ class TestSyncrepl(BaseSyncreplTests, SlapdTestCase):
             self.server.ldap_uri,
             self.server.root_dn,
             self.server.root_pw,
-            bytes_mode=False
+            bytes_mode=False,
         )
         self.suffix = self.server.suffix
 
@@ -468,21 +423,22 @@ class DecodeSyncreplProtoTests(unittest.TestCase):
         3d6469726563746f7279206d616e616765723a64633d6578616d706c652c6463
         3d636f6d3a286f626a656374436c6173733d2a2923330101ff311204108dc446
         01a93611ea8aaff248c5fa5780
-        """.replace(' ', '').replace('\n', '')
+        """.replace(" ", "").replace("\n", "")
 
         msgraw = binascii.unhexlify(msg)
         sim = SyncInfoMessage(msgraw)
         self.assertEqual(sim.refreshDelete, None)
         self.assertEqual(sim.refreshPresent, None)
         self.assertEqual(sim.newcookie, None)
-        self.assertEqual(sim.syncIdSet,
+        self.assertEqual(
+            sim.syncIdSet,
             {
-                'cookie': 'ldapkdc.example.com:38901#cn=directory manager:dc=example,dc=com:(objectClass=*)#3',
-                'syncUUIDs': ['8dc44601-a936-11ea-8aaf-f248c5fa5780'],
-                'refreshDeletes': True
-            }
+                "cookie": "ldapkdc.example.com:38901#cn=directory manager:dc=example,dc=com:(objectClass=*)#3",
+                "syncUUIDs": ["8dc44601-a936-11ea-8aaf-f248c5fa5780"],
+                "refreshDeletes": True,
+            },
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

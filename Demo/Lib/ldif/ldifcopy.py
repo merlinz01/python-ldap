@@ -9,14 +9,14 @@ input, sanitizes some attributes, maps/removes object classes,
 maps/removes attributes., etc. It's far from being complete though.
 """
 
-import sys,ldif
+import sys
+
+import ldif
 
 infile = sys.stdin
 outfile = sys.stdout
 
 ldif_collector = ldif.LDIFCopy(
-  infile,
-  outfile,
-  process_url_schemes=['file','ftp','http']
+    infile, outfile, process_url_schemes=["file", "ftp", "http"]
 )
 ldif_collector.parse()

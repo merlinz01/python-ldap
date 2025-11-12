@@ -9,7 +9,7 @@ import unittest
 import warnings
 
 # Switch off processing .ldaprc or ldap.conf before importing _ldap
-os.environ['LDAPNOINIT'] = '1'
+os.environ["LDAPNOINIT"] = "1"
 import ldap
 import ldap.cidict
 
@@ -23,9 +23,9 @@ class TestCidict(unittest.TestCase):
         """
         test function is_dn()
         """
-        self.assertEqual(ldap.dn.is_dn('foobar,ou=ae-dir'), False)
+        self.assertEqual(ldap.dn.is_dn("foobar,ou=ae-dir"), False)
         data = {
-            'AbCDeF':123,
+            "AbCDeF": 123,
         }
         cix = ldap.cidict.cidict(data)
         self.assertEqual(cix["ABCDEF"], 123)
@@ -35,11 +35,11 @@ class TestCidict(unittest.TestCase):
         self.assertEqual(cix["XyZ"], 987)
         self.assertEqual(cix.get("xyz", None), 987)
         cix_keys = sorted(cix.keys())
-        self.assertEqual(cix_keys, ['AbCDeF','xYZ'])
+        self.assertEqual(cix_keys, ["AbCDeF", "xYZ"])
         cix_keys = sorted(cix)
-        self.assertEqual(cix_keys, ['AbCDeF','xYZ'])
+        self.assertEqual(cix_keys, ["AbCDeF", "xYZ"])
         cix_items = sorted(cix.items())
-        self.assertEqual(cix_items, [('AbCDeF',123), ('xYZ',987)])
+        self.assertEqual(cix_items, [("AbCDeF", 123), ("xYZ", 987)])
         del cix["abcdEF"]
         self.assertEqual("abcdef" in cix._keys, False)
         self.assertEqual("AbCDef" in cix._keys, False)
@@ -52,7 +52,7 @@ class TestCidict(unittest.TestCase):
         strlist_funcs = [
             ldap.cidict.strlist_intersection,
             ldap.cidict.strlist_minus,
-            ldap.cidict.strlist_union
+            ldap.cidict.strlist_union,
         ]
         for strlist_func in strlist_funcs:
             with warnings.catch_warnings(record=True) as w:
@@ -63,18 +63,16 @@ class TestCidict(unittest.TestCase):
 
     def test_cidict_data(self):
         """test the deprecated data atrtribute"""
-        d = ldap.cidict.cidict({'A': 1, 'B': 2})
+        d = ldap.cidict.cidict({"A": 1, "B": 2})
         with warnings.catch_warnings(record=True) as w:
             warnings.resetwarnings()
-            warnings.simplefilter('always', DeprecationWarning)
+            warnings.simplefilter("always", DeprecationWarning)
             data = d.data
-        assert data == {'a': 1, 'b': 2}
+        assert data == {"a": 1, "b": 2}
         self.assertEqual(len(w), 1)
 
     def test_copy(self):
-        cix1 = ldap.cidict.cidict(
-            {"a": 1, "B": 2}
-        )
+        cix1 = ldap.cidict.cidict({"a": 1, "B": 2})
         cix2 = cix1.copy()
         self.assertEqual(cix1, cix2)
         cix1["c"] = 3
@@ -85,5 +83,5 @@ class TestCidict(unittest.TestCase):
         self.assertEqual(list(cix2.keys()), ["a", "B", "C"])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

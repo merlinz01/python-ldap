@@ -2,25 +2,25 @@ import os
 import unittest
 
 # Switch off processing .ldaprc or ldap.conf before importing _ldap
-os.environ['LDAPNOINIT'] = '1'
-
-from slapdtest import SlapdTestCase, requires_tls
+os.environ["LDAPNOINIT"] = "1"
 
 import ldap
 from ldap.controls import RequestControlTuples
-from ldap.controls.pagedresults import SimplePagedResultsControl
 from ldap.controls.openldap import SearchNoOpControl
+from ldap.controls.pagedresults import SimplePagedResultsControl
 from ldap.ldapobject import SimpleLDAPObject
-
+from slapdtest import SlapdTestCase, requires_tls
 
 SENTINEL = object()
 
-TEST_CTRL = RequestControlTuples([
-    # with BER data
-    SimplePagedResultsControl(criticality=0, size=5, cookie=b'cookie'),
-    # value-less
-    SearchNoOpControl(criticality=1),
-])
+TEST_CTRL = RequestControlTuples(
+    [
+        # with BER data
+        SimplePagedResultsControl(criticality=0, size=5, cookie=b"cookie"),
+        # value-less
+        SearchNoOpControl(criticality=1),
+    ]
+)
 TEST_CTRL_EXPECTED = [
     TEST_CTRL[0],
     # Noop has no value
@@ -57,7 +57,7 @@ class BaseTestOptions:
         with self.assertRaises(ValueError):
             self.get_option(-1)
         with self.assertRaises(ValueError):
-            self.set_option(-1, '')
+            self.set_option(-1, "")
 
     def _test_timeout(self, option):
         self._check_option(option, 10.5)
@@ -95,10 +95,7 @@ class BaseTestOptions:
             self.set_option(option, [list(TEST_CTRL[0])])
         with self.assertRaises(TypeError):
             # data must be bytes or None
-            self.set_option(
-                option,
-                [TEST_CTRL[0][0], TEST_CTRL[0][1], 'data']
-            )
+            self.set_option(option, [TEST_CTRL[0][0], TEST_CTRL[0][1], "data"])
 
     def test_client_controls(self):
         self._test_controls(ldap.OPT_CLIENT_CONTROLS)
@@ -121,12 +118,11 @@ class BaseTestOptions:
         self.assertIsInstance(value, dict)
         with self.assertRaises(ValueError) as e:
             self.set_option(ldap.OPT_API_INFO, value)
-        self.assertIn('read-only', str(e.exception))
+        self.assertIn("read-only", str(e.exception))
 
 
 class TestGlobalOptions(BaseTestOptions, unittest.TestCase):
-    """Test setting/getting options globally
-    """
+    """Test setting/getting options globally"""
 
     def get_option(self, option):
         return ldap.get_option(option)
@@ -136,15 +132,13 @@ class TestGlobalOptions(BaseTestOptions, unittest.TestCase):
 
 
 class TestLDAPObjectOptions(BaseTestOptions, SlapdTestCase):
-    """Test setting/getting connection-specific options
-    """
+    """Test setting/getting connection-specific options"""
 
     ldap_object_class = SimpleLDAPObject
 
     def setUp(self):
         self.conn = self._open_ldap_conn(
-            who=self.server.root_dn,
-            cred=self.server.root_pw
+            who=self.server.root_dn, cred=self.server.root_pw
         )
 
     def tearDown(self):
@@ -192,5 +186,5 @@ class TestLDAPObjectOptions(BaseTestOptions, SlapdTestCase):
         self._test_controls(ldap.OPT_SERVER_CONTROLS)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
