@@ -11,11 +11,6 @@ import sys
 
 from setuptools import Extension, setup
 
-if sys.version_info < (3, 6):
-    raise RuntimeError(
-        "The C API from Python 3.6+ is required, found %s" % sys.version_info
-    )
-
 try:
     import tomllib
 except ModuleNotFoundError:
