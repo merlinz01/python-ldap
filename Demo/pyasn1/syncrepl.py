@@ -42,7 +42,7 @@ class SyncReplClient(ReconnectLDAPObject, SyncreplConsumer):
         ldap.ldapobject.ReconnectLDAPObject.__init__(self, *args, **kwargs)
         # Now prepare the data store
         if db_path:
-            self.__data = shelve.open(db_path, "c")
+            self.__data = shelve.open(db_path, "c")  # noqa: SIM115
         else:
             self.__data = {}
         # We need this for later internal use

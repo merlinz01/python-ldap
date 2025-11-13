@@ -44,6 +44,9 @@ print("Updating", repr(dn))
 with contextlib.suppress(builtins.BaseException):
     ldap_conn.delete_s(dn)
 
+with open("/www/leonard/leonard.jpg", "rb") as photo_file:
+    jpeg_data = photo_file.read()
+
 ldap_conn.add_s(
     dn,
     [
@@ -91,7 +94,7 @@ ldap_conn.add_s(
         ("labeleduri", ["labeleduri"]),
         ("manager", ["cn=Jaga Indulska"]),
         ("reports", ["reports"]),
-        ("jpegPhoto", [open("/www/leonard/leonard.jpg").read()]),
+        ("jpegPhoto", [jpeg_data]),
         ("uid", ["leonard"]),
         ("userPassword", [""]),
     ],

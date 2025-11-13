@@ -117,7 +117,6 @@ ignore = [
     "N816",   # variable in function scope should not be mixedCase (used in demos)
     "N818",   # error class names should end with 'Error'
     "N999",   # invalid module name (Tests)
-    "SIM115", # use a context manager for opening files (tests use explicit open/close)
     "SIM105", # use contextlib.suppress (tests prefer explicit try/except)
 ]
 
