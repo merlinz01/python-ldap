@@ -1,0 +1,180 @@
+name: Release
+
+on:
+  push:
+    # tags:
+    #   - "v*"
+
+jobs:
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.9"
+          python-version: "3.9"
+          activate-environment: true
+      - name: Build package
+        run: uv build --sdist
+      - name: Upload artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: release-asset-sdist
+          path: dist/*.tar.gz
+
+  build_ubuntu_wheels:
+    name: "Build (Python ${{ matrix.python-version }} on Ubuntu 22.04)"
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.9"
+          # - "3.10"
+          # - "3.11"
+          # - "3.12"
+          # - "3.13"
+          # - "pypy3.9"
+          # - "pypy3.10"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Install apt dependencies
+        run: >
+          sudo apt-get update &&
+          sudo apt-get install -y ldap-utils slapd enchant-2 libldap2-dev libsasl2-dev apparmor-utils
+      - name: Disable AppArmor
+        run: sudo aa-disable /usr/sbin/slapd
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.9"
+          python-version: ${{ matrix.python-version }}
+          activate-environment: true
+      - name: Build package
+        run: uv build
+      - name: Upload artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: release-asset-wheel-${{ matrix.python-version }}
+          path: dist/*.whl
+
+  build_windows:
+    name: "Build (Python ${{ matrix.python-version }} on Windows ${{ matrix.architecture.msbuild-arch }})"
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.9"
+          # - "3.10"
+          # - "3.11"
+          # - "3.12"
+          # - "3.13"
+        architecture:
+          - vs-platform: x64
+            msbuild-arch: x64
+            openssl-config: VC-WIN64A-masm
+            msvc-dev-cmd-arch: amd64
+          - vs-platform: Win32
+            msbuild-arch: x86
+            openssl-config: VC-WIN32
+            msvc-dev-cmd-arch: amd64_x86
+    env:
+      VS_PLATFORM: ${{ matrix.architecture.vs-platform }}
+      OPENSSL_CONFIG: ${{ matrix.architecture.openssl-config }}
+      OPENSSL_VER: openssl-3.0.18
+      OPENLDAP_VER: openldap-2.4.59
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+        with:
+          msbuild-architecture: ${{ matrix.architecture.msbuild-arch }}
+      - name: Setup MSVC Dev Cmd
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.architecture.msvc-dev-cmd-arch }}
+      - name: Build OpenSSL
+        run: |
+          curl.exe -fSL -o openssl.tar.gz https://github.com/openssl/openssl/releases/download/$env:OPENSSL_VER/$env:OPENSSL_VER.tar.gz
+          tar -xzf openssl.tar.gz
+          git apply -p1 --verbose --directory=$env:OPENSSL_VER .github\workflows\openssl.diff
+          cd $env:OPENSSL_VER
+          perl Configure $env:OPENSSL_CONFIG no-shared no-makedepend no-zlib --prefix=. --openssldir=openssl
+          perl configdata.pm --dump
+          nmake /nologo build_all_generated
+          nmake /nologo PERL=no-perl
+          nmake /nologo install_sw
+          nmake /nologo install_ssldirs
+      - name: Build OpenLDAP
+        run: |
+          curl.exe -fSL -o openldap.tar.gz https://www.openldap.org/software/download/OpenLDAP/openldap-release/$env:OPENLDAP_VER.tar.gz
+          tar -xzf openldap.tar.gz
+          git apply -p1 --verbose --directory=$env:OPENLDAP_VER .github\workflows\openldap.diff
+          cd $env:OPENLDAP_VER
+          xcopy include ..\include\ /E /H /C /R /Q /Y
+          $env:INCLUDE = "$env:INCLUDE;.\include"
+          $env:LIB = "$env:LIB;.\lib"
+          msbuild win32\vc17\liblber.sln /m /t:Clean,Rebuild /p:UseEnv=true /p:Configuration=Release /p:Platform=$env:VS_PLATFORM
+          copy /Y /B Release/*.lib ..\lib\
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.9"
+          python-version: ${{ matrix.python-version }}
+          activate-environment: true
+      - name: Build package
+        run: uv build
+      - name: Upload artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: release-asset-wheel-${{ matrix.python-version }}-windows
+
+  # release:
+  #   name: Create Release
+  #   needs: [build_sdist, build_ubuntu_wheels]
+  #   runs-on: ubuntu-22.04
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - name: Download artifacts
+  #       uses: actions/download-artifact@v6
+  #       with:
+  #         pattern: release-asset-*
+  #         merge-multiple: true
+  #         path: dist/
+  #     - name: Sign assets with Sigstore
+  #       uses: sigstore/gh-action-sigstore-python@v3
+  #       with:
+  #         inputs: ./dist/*.tar.gz ./dist/*.whl
+  #     - name: Create GitHub Release
+  #       uses: softprops/action-gh-release@v2
+  #       with:
+  #         files: dist/*
+  #         draft: true
+
+  # publish-to-pypi:
+  #   name: Publish to PyPI
+  #   needs:
+  #     - release
+  #   runs-on: ubuntu-latest
+  #   environment:
+  #     name: pypi
+  #     url: https://pypi.org/project/python-ldap/
+  #   permissions:
+  #     id-token: write
+  #   steps:
+  #     - name: Download the artifacts
+  #       uses: actions/download-artifact@v6
+  #       with:
+  #         pattern: release-asset-*
+  #         merge-multiple: true
+  #         path: dist/
+  #     - name: Publish to PyPI
+  #       uses: pypa/gh-action-pypi-publish@release/v1
