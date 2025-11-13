@@ -108,7 +108,6 @@ select = [
 ]
 ignore = [
     "E501",   # line too long (handled by formatter)
-    "B008",   # do not perform function calls in argument defaults
     "N801",   # class name should use CapWords convention (TestCase etc. are mixed case)
     "N802",   # function name should be lowercase (LDAP uses mixed case)
     "N803",   # argument name should be lowercase (LDAP uses mixed case)
@@ -117,7 +116,6 @@ ignore = [
     "N816",   # variable in function scope should not be mixedCase (used in demos)
     "N818",   # error class names should end with 'Error'
     "N999",   # invalid module name (Tests)
-    "SIM105", # use contextlib.suppress (tests prefer explicit try/except)
 ]
 
 [tool.ruff.lint.isort]

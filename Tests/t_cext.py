@@ -107,11 +107,9 @@ class TestLdapCExtension(SlapdTestCase):
                 self._bind_conn(ldap_conn)
             yield sock, ldap_conn
         finally:
-            try:
+            # Socket may already be closed
+            with contextlib.suppress(OSError):
                 sock.close()
-            except OSError:
-                # already closed
-                pass
 
     def _bind_conn(self, ldap_conn):
         # Perform a simple bind
