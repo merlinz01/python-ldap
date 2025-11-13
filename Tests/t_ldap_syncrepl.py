@@ -18,13 +18,13 @@ from ldap.syncrepl import SyncInfoMessage, SyncreplConsumer
 from slapdtest import SlapdObject, SlapdTestCase
 
 # a template string for generating simple slapd.conf file
-SLAPD_CONF_PROVIDER_TEMPLATE = r"""dn: cn=config
+SLAPD_CONF_PROVIDER_TEMPLATE = """dn: cn=config
 objectClass: olcGlobal
 cn: config
 olcServerID: %(serverid)s
 olcLogLevel: %(loglevel)s
 olcAllows: bind_v2
-olcAuthzRegexp: {0}"gidnumber=%(root_gid)s\+uidnumber=%(root_uid)s,\
+olcAuthzRegexp: {0}"gidnumber=%(root_gid)s\\+uidnumber=%(root_uid)s,\
 cn=peercred,cn=external,cn=auth" "%(rootdn)s"
 olcAuthzRegexp: {1}"C=DE, O=python-ldap, OU=slapd-test, \
 CN=([A-Za-z]+)" "ldap://ou=people,dc=local???($1)"
