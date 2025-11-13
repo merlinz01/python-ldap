@@ -591,9 +591,10 @@ interaction(unsigned flags, sasl_interact_t *interact, PyObject *SASLObject)
     PyObject *result;
     char *c_result;
 
-    result = PyObject_CallMethod(SASLObject, "callback", "isss", interact->id,  /* see sasl.h */
-                                 interact->challenge,
-                                 interact->prompt, interact->defresult);
+    result = PyObject_CallMethod(
+        SASLObject, "callback", "isss", interact->id,  /* see sasl.h */
+        interact->challenge, interact->prompt, interact->defresult
+    );
 
     if (result == NULL)
         /*searching for a better error code */
@@ -1099,7 +1100,8 @@ l_ldap_result4(LDAPObject *self, PyObject *args)
         res_msgid = ldap_msgid(msg);
 
     if (res_type == LDAP_RES_SEARCH_ENTRY) {
-        /* LDAPmessage_to_python will parse entries and read the controls for each entry */
+        /* LDAPmessage_to_python will parse entries and read the controls
+           for each entry */
     }
     else if (res_type == LDAP_RES_SEARCH_REFERENCE) {
         /* LDAPmessage_to_python will parse refs and read the controls for each res */

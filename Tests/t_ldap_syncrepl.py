@@ -24,8 +24,10 @@ cn: config
 olcServerID: %(serverid)s
 olcLogLevel: %(loglevel)s
 olcAllows: bind_v2
-olcAuthzRegexp: {0}"gidnumber=%(root_gid)s\+uidnumber=%(root_uid)s,cn=peercred,cn=external,cn=auth" "%(rootdn)s"
-olcAuthzRegexp: {1}"C=DE, O=python-ldap, OU=slapd-test, CN=([A-Za-z]+)" "ldap://ou=people,dc=local???($1)"
+olcAuthzRegexp: {0}"gidnumber=%(root_gid)s\+uidnumber=%(root_uid)s,\
+cn=peercred,cn=external,cn=auth" "%(rootdn)s"
+olcAuthzRegexp: {1}"C=DE, O=python-ldap, OU=slapd-test, \
+CN=([A-Za-z]+)" "ldap://ou=people,dc=local???($1)"
 olcTLSCACertificateFile: %(cafile)s
 olcTLSCertificateFile: %(servercert)s
 olcTLSCertificateKeyFile: %(serverkey)s
@@ -433,7 +435,10 @@ class DecodeSyncreplProtoTests(unittest.TestCase):
         self.assertEqual(
             sim.syncIdSet,
             {
-                "cookie": "ldapkdc.example.com:38901#cn=directory manager:dc=example,dc=com:(objectClass=*)#3",
+                "cookie": (
+                    "ldapkdc.example.com:38901#cn=directory manager:"
+                    "dc=example,dc=com:(objectClass=*)#3"
+                ),
                 "syncUUIDs": ["8dc44601-a936-11ea-8aaf-f248c5fa5780"],
                 "refreshDeletes": True,
             },

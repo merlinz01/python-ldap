@@ -68,7 +68,9 @@ while True:
             add_ctrls=1,
             add_intermediates=1,
             resp_ctrl_classes={
-                EntryChangeNotificationControl.controlType: EntryChangeNotificationControl
+                EntryChangeNotificationControl.controlType: (
+                    EntryChangeNotificationControl
+                )
             },
         )
     except ldap.TIMEOUT:

@@ -43,7 +43,10 @@ class TestIsLDAPUrl(unittest.TestCase):
         "ldaps://root.openldap.org/dc=openldap,dc=org": 1,
         "ldap://x500.mh.se/o=Mitthogskolan,c=se????1.2.752.58.10.2=T.61": 1,
         "ldp://root.openldap.org/dc=openldap,dc=org": 0,
-        "ldap://localhost:1389/ou%3DUnstructured%20testing%20tree%2Cdc%3Dstroeder%2Cdc%3Dcom??one": 1,
+        (
+            "ldap://localhost:1389/"
+            "ou%3DUnstructured%20testing%20tree%2Cdc%3Dstroeder%2Cdc%3Dcom??one"
+        ): 1,
         "ldaps://ldap.example.com/c%3dDE": 1,
         "ldapi:///dc=stroeder,dc=de????x-saslmech=EXTERNAL": 1,
         "LDAP://localhost": True,
@@ -75,7 +78,10 @@ class TestParseLDAPUrl(unittest.TestCase):
             LDAPUrl(hostport="root.openldap.org", dn="dc=openldap,dc=org"),
         ),
         (
-            "ldap://root.openldap.org/dc%3dboolean%2cdc%3dnet???%28objectClass%3d%2a%29",
+            (
+                "ldap://root.openldap.org/"
+                "dc%3dboolean%2cdc%3dnet???%28objectClass%3d%2a%29"
+            ),
             LDAPUrl(
                 hostport="root.openldap.org",
                 dn="dc=boolean,dc=net",
@@ -121,7 +127,10 @@ class TestParseLDAPUrl(unittest.TestCase):
             ),
         ),
         (
-            "ldap://localhost:12345/dc=stroeder,dc=com????!bindname=cn=Michael%2Cdc=stroeder%2Cdc=com,!X-BINDPW=secretpassword",
+            (
+                "ldap://localhost:12345/dc=stroeder,dc=com????"
+                "!bindname=cn=Michael%2Cdc=stroeder%2Cdc=com,!X-BINDPW=secretpassword"
+            ),
             LDAPUrl(
                 hostport="localhost:12345",
                 dn="dc=stroeder,dc=com",
@@ -140,7 +149,10 @@ class TestParseLDAPUrl(unittest.TestCase):
             ),
         ),
         (
-            "ldap://localhost:54321/dc=stroeder,dc=com????bindname=cn=Michael%2Cdc=stroeder%2Cdc=com,X-BINDPW=secretpassword",
+            (
+                "ldap://localhost:54321/dc=stroeder,dc=com????"
+                "bindname=cn=Michael%2Cdc=stroeder%2Cdc=com,X-BINDPW=secretpassword"
+            ),
             LDAPUrl(
                 hostport="localhost:54321",
                 dn="dc=stroeder,dc=com",
@@ -188,14 +200,16 @@ class TestParseLDAPUrl(unittest.TestCase):
             self.assertEqual(
                 ldap_url_obj,
                 test_ldap_url_obj,
-                f"Attributes of LDAPUrl({ldap_url_str!r}) are:\n{ldap_url_obj!r}\ninstead of:\n{test_ldap_url_obj!r}",
+                f"Attributes of LDAPUrl({ldap_url_str!r}) are:\n"
+                f"{ldap_url_obj!r}\ninstead of:\n{test_ldap_url_obj!r}",
             )
             unparsed_ldap_url_str = test_ldap_url_obj.unparse()
             unparsed_ldap_url_obj = LDAPUrl(ldapUrl=unparsed_ldap_url_str)
             self.assertEqual(
                 unparsed_ldap_url_obj,
                 test_ldap_url_obj,
-                f"Attributes of LDAPUrl({unparsed_ldap_url_str!r}) are:\n{unparsed_ldap_url_obj!r}\ninstead of:\n{test_ldap_url_obj!r}",
+                f"Attributes of LDAPUrl({unparsed_ldap_url_str!r}) are:\n"
+                f"{unparsed_ldap_url_obj!r}\ninstead of:\n{test_ldap_url_obj!r}",
             )
 
 

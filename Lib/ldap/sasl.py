@@ -73,7 +73,9 @@ class sasl:
         cb_result = self.cb_value_dict.get(cb_id, defresult) or ""
         if __debug__ and _trace_level >= 1:
             _trace_file.write(
-                f"*** id={cb_id}, challenge={challenge}, prompt={prompt}, defresult={defresult!r}\n-> {self.cb_value_dict.get(cb_result)!r}\n"
+                f"*** id={cb_id}, challenge={challenge}, prompt={prompt}, "
+                f"defresult={defresult!r}\n-> "
+                f"{self.cb_value_dict.get(cb_result)!r}\n"
             )
         if not isinstance(cb_result, bytes):
             cb_result = cb_result.encode("utf-8")

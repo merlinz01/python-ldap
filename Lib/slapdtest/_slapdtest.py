@@ -32,7 +32,8 @@ cn: config
 olcServerID: %(serverid)s
 olcLogLevel: %(loglevel)s
 olcAllows: bind_v2
-olcAuthzRegexp: {0}"gidnumber=%(root_gid)s\+uidnumber=%(root_uid)s,cn=peercred,cn=external,cn=auth" "%(rootdn)s"
+olcAuthzRegexp: {0}"gidnumber=%(root_gid)s\+uidnumber=%(root_uid)s,\
+cn=peercred,cn=external,cn=auth" "%(rootdn)s"
 olcAuthzRegexp: {1}"C=DE, O=python-ldap, OU=slapd-test, CN=([A-Za-z]+)" "ldap://ou=people,dc=local???($1)"
 olcTLSCACertificateFile: %(cafile)s
 olcTLSCertificateFile: %(servercert)s
@@ -265,8 +266,8 @@ class SlapdObject:
         command = which(cmd, path=path)
         if command is None:
             raise ValueError(
-                f"Command '{cmd}' not found. Set the {var_name} environment variable to "
-                "override slapdtest's search path."
+                f"Command '{cmd}' not found. Set the {var_name} environment "
+                "variable to override slapdtest's search path."
             )
         return command
 

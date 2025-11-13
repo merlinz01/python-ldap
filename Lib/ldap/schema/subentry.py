@@ -194,7 +194,8 @@ class SubSchema:
                 # This helps with falsely assigned OIDs.
                 continue
             assert se_obj.__class__ == schema_element_class, (
-                f"Schema element referenced by {se_oid} must be of class {schema_element_class.__name__} but was {se_obj.__class__}"
+                f"Schema element referenced by {se_oid} must be of class "
+                f"{schema_element_class.__name__} but was {se_obj.__class__}"
             )
             for s in se_obj.sup or ("_",):
                 sup_oid = self.getoid(schema_element_class, s)
@@ -216,7 +217,8 @@ class SubSchema:
             except KeyError as ke:
                 if raise_keyerror:
                     raise KeyError(
-                        f"No registered {se_class.__name__}-OID for nameoroid {nameoroid_stripped!r}"
+                        f"No registered {se_class.__name__}-OID for nameoroid "
+                        f"{nameoroid_stripped!r}"
                     ) from ke
                 else:
                     result_oid = nameoroid_stripped
@@ -249,7 +251,8 @@ class SubSchema:
         except KeyError as ke:
             if raise_keyerror:
                 raise KeyError(
-                    f"No ldap.schema.{se_class.__name__} instance with nameoroid {nameoroid!r} and se_oid {se_oid!r}"
+                    f"No ldap.schema.{se_class.__name__} instance with "
+                    f"nameoroid {nameoroid!r} and se_oid {se_oid!r}"
                 ) from ke
             else:
                 se_obj = default

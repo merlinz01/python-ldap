@@ -67,7 +67,8 @@ class VLVRequestControl(RequestControl):
         assert (
             offset is not None and content_count is not None
         ) or greater_than_or_equal, ValueError(
-            "offset and content_count must be set together or greater_than_or_equal must be used"
+            "offset and content_count must be set together or "
+            "greater_than_or_equal must be used"
         )
         self.before_count = before_count
         self.after_count = after_count

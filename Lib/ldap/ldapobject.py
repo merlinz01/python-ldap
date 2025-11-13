@@ -213,8 +213,9 @@ class SimpleLDAPObject:
         """
         cancel(cancelid[,serverctrls=None[,clientctrls=None]]) -> int
             Send cancels extended operation for an LDAP operation specified by cancelid.
-            The cancelid should be the message id of an outstanding LDAP operation as returned
-            by the asynchronous methods search(), modify() etc.  The caller
+            The cancelid should be the message id of an outstanding LDAP
+            operation as returned by the asynchronous methods search(),
+            modify() etc.  The caller
             can expect that the result of an abandoned operation will not be
             returned from a future call to result().
             In opposite to abandon() this extended operation gets an result from
@@ -313,7 +314,8 @@ class SimpleLDAPObject:
         self, who, auth, serverctrls=None, clientctrls=None, sasl_flags=ldap.SASL_QUIET
     ):
         """
-        sasl_interactive_bind_s(who, auth [,serverctrls=None[,clientctrls=None[,sasl_flags=ldap.SASL_QUIET]]]) -> None
+        sasl_interactive_bind_s(who, auth [,serverctrls=None[,clientctrls=None
+        [,sasl_flags=ldap.SASL_QUIET]]]) -> None
         """
         return self._ldap_call(
             self._l.sasl_interactive_bind_s,
@@ -333,7 +335,8 @@ class SimpleLDAPObject:
         authz_id="",
     ):
         """
-        Send a SASL bind request using a non-interactive SASL method (e.g. GSSAPI, EXTERNAL)
+        Send a SASL bind request using a non-interactive SASL method
+        (e.g. GSSAPI, EXTERNAL)
         """
         auth = ldap.sasl.sasl({ldap.sasl.CB_USER: authz_id}, sasl_mech)
         self.sasl_interactive_bind_s("", auth, serverctrls, clientctrls, sasl_flags)
@@ -368,7 +371,8 @@ class SimpleLDAPObject:
 
     def sasl_bind_s(self, dn, mechanism, cred, serverctrls=None, clientctrls=None):
         """
-        sasl_bind_s(dn, mechanism, cred [,serverctrls=None[,clientctrls=None]]) -> int|str
+        sasl_bind_s(dn, mechanism, cred [,serverctrls=None[,clientctrls=None]])
+        -> int|str
         """
         return self._ldap_call(
             self._l.sasl_bind_s,
@@ -457,8 +461,8 @@ class SimpleLDAPObject:
     def extop(self, extreq, serverctrls=None, clientctrls=None):
         """
         extop(extreq[,serverctrls=None[,clientctrls=None]]]) -> int
-        extop_s(extreq[,serverctrls=None[,clientctrls=None[,extop_resp_class=None]]]]) ->
-            (respoid,respvalue)
+        extop_s(extreq[,serverctrls=None[,clientctrls=None
+        [,extop_resp_class=None]]]]) -> (respoid,respvalue)
             Performs an LDAP extended operation. The asynchronous
             form returns the message id of the initiated request, and the
             result can be obtained from a subsequent call to extop_result().
@@ -496,7 +500,8 @@ class SimpleLDAPObject:
             respoid, respvalue = res
             if extop_resp_class.responseName != respoid:
                 raise ldap.PROTOCOL_ERROR(
-                    f"Wrong OID in extended response! Expected {extop_resp_class.responseName}, got {respoid}"
+                    f"Wrong OID in extended response! Expected "
+                    f"{extop_resp_class.responseName}, got {respoid}"
                 )
             return extop_resp_class(extop_resp_class.responseName, respvalue)
         else:
@@ -601,8 +606,10 @@ class SimpleLDAPObject:
         self, dn, newrdn, newsuperior=None, delold=1, serverctrls=None, clientctrls=None
     ):
         """
-        rename(dn, newrdn [, newsuperior=None [,delold=1][,serverctrls=None[,clientctrls=None]]]) -> int
-        rename_s(dn, newrdn [, newsuperior=None] [,delold=1][,serverctrls=None[,clientctrls=None]]) -> None
+        rename(dn, newrdn [, newsuperior=None [,delold=1]
+        [,serverctrls=None[,clientctrls=None]]]) -> int
+        rename_s(dn, newrdn [, newsuperior=None] [,delold=1]
+        [,serverctrls=None[,clientctrls=None]]) -> None
             Perform a rename entry operation. These routines take dn, the
             DN of the entry whose RDN is to be changed, newrdn, the
             new RDN, and newsuperior, the new parent DN, to give to the entry.
@@ -773,11 +780,18 @@ class SimpleLDAPObject:
         sizelimit=0,
     ):
         """
-        search(base, scope [,filterstr='(objectClass=*)' [,attrlist=None [,attrsonly=0]]]) -> int
-        search_s(base, scope [,filterstr='(objectClass=*)' [,attrlist=None [,attrsonly=0]]])
-        search_st(base, scope [,filterstr='(objectClass=*)' [,attrlist=None [,attrsonly=0 [,timeout=-1]]]])
-        search_ext(base,scope,[,filterstr='(objectClass=*)' [,attrlist=None [,attrsonly=0 [,serverctrls=None [,clientctrls=None [,timeout=-1 [,sizelimit=0]]]]]]])
-        search_ext_s(base,scope,[,filterstr='(objectClass=*)' [,attrlist=None [,attrsonly=0 [,serverctrls=None [,clientctrls=None [,timeout=-1 [,sizelimit=0]]]]]]])
+        search(base, scope [,filterstr='(objectClass=*)' [,attrlist=None
+        [,attrsonly=0]]]) -> int
+        search_s(base, scope [,filterstr='(objectClass=*)' [,attrlist=None
+        [,attrsonly=0]]])
+        search_st(base, scope [,filterstr='(objectClass=*)' [,attrlist=None
+        [,attrsonly=0 [,timeout=-1]]]])
+        search_ext(base,scope,[,filterstr='(objectClass=*)' [,attrlist=None
+        [,attrsonly=0 [,serverctrls=None [,clientctrls=None
+        [,timeout=-1 [,sizelimit=0]]]]]]])
+        search_ext_s(base,scope,[,filterstr='(objectClass=*)' [,attrlist=None
+        [,attrsonly=0 [,serverctrls=None [,clientctrls=None
+        [,timeout=-1 [,sizelimit=0]]]]]]])
 
             Perform an LDAP search operation, with base as the DN of
             the entry at which to start the search, scope being one of
@@ -1091,8 +1105,10 @@ class ReconnectLDAPObject(SimpleLDAPObject):
     This class also implements the pickle protocol.
 
     .. versionadded:: 3.5
-      The exceptions :py:exc:`ldap.SERVER_DOWN`, :py:exc:`ldap.UNAVAILABLE`, :py:exc:`ldap.CONNECT_ERROR` and
-      :py:exc:`ldap.TIMEOUT` (configurable via :py:attr:`_reconnect_exceptions`) now trigger a reconnect.
+      The exceptions :py:exc:`ldap.SERVER_DOWN`, :py:exc:`ldap.UNAVAILABLE`,
+      :py:exc:`ldap.CONNECT_ERROR` and :py:exc:`ldap.TIMEOUT`
+      (configurable via :py:attr:`_reconnect_exceptions`) now trigger
+      a reconnect.
     """
 
     __transient_attrs__: ClassVar = {
@@ -1192,7 +1208,8 @@ class ReconnectLDAPObject(SimpleLDAPObject):
             func, args, kwargs = self._last_bind
             func(self, *args, **kwargs)
         else:
-            # Send explicit anon simple bind request to provoke ldap.SERVER_DOWN in method reconnect()
+            # Send explicit anon simple bind request to provoke
+            # ldap.SERVER_DOWN in method reconnect()
             SimpleLDAPObject.simple_bind_s(self, None, None)
 
     def _restore_options(self):
@@ -1249,7 +1266,8 @@ class ReconnectLDAPObject(SimpleLDAPObject):
                 else:
                     if __debug__ and self._trace_level >= 1:
                         self._trace_file.write(
-                            f"*** {counter_text} reconnect to {uri} successful => repeat last operation\n"
+                            f"*** {counter_text} reconnect to {uri} successful "
+                            f"=> repeat last operation\n"
                         )
                     self._reconnects_done = self._reconnects_done + 1
                     break

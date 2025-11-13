@@ -44,7 +44,8 @@ class TestModlist(unittest.TestCase):
             self.assertEqual(
                 test_modlist,
                 result_modlist,
-                f"addModlist({entry!r}) returns\n{result_modlist!r}\ninstead of\n{test_modlist!r}.",
+                f"addModlist({entry!r}) returns\n{result_modlist!r}\n"
+                f"instead of\n{test_modlist!r}.",
             )
 
     modifyModlist_tests: ClassVar = [
@@ -146,7 +147,8 @@ class TestModlist(unittest.TestCase):
             self.assertEqual(
                 test_modlist,
                 result_modlist,
-                f"modifyModlist({old_entry!r},{new_entry!r}) returns\n{result_modlist!r}\ninstead of\n{test_modlist!r}.",
+                f"modifyModlist({old_entry!r},{new_entry!r}) returns\n"
+                f"{result_modlist!r}\ninstead of\n{test_modlist!r}.",
             )
 
 

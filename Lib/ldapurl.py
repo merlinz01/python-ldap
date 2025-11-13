@@ -115,7 +115,10 @@ class LDAPUrlExtension:
         return self.unparse()
 
     def __repr__(self):
-        return f"<{self.__class__.__module__}.{self.__class__.__name__} instance at {hex(id(self))}: {self.__dict__}>"
+        return (
+            f"<{self.__class__.__module__}.{self.__class__.__name__} "
+            f"instance at {hex(id(self))}: {self.__dict__}>"
+        )
 
     def __eq__(self, other):
         return (
@@ -175,7 +178,10 @@ class LDAPUrlExtensions(MutableMapping):
         return ",".join(str(v) for v in self.values())
 
     def __repr__(self):
-        return f"<{self.__class__.__module__}.{self.__class__.__name__} instance at {hex(id(self))}: {self._data}>"
+        return (
+            f"<{self.__class__.__module__}.{self.__class__.__name__} "
+            f"instance at {hex(id(self))}: {self._data}>"
+        )
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -393,7 +399,10 @@ class LDAPUrl:
         return self.unparse()
 
     def __repr__(self):
-        return f"<{self.__class__.__module__}.{self.__class__.__name__} instance at {hex(id(self))}: {self.__dict__}>"
+        return (
+            f"<{self.__class__.__module__}.{self.__class__.__name__} "
+            f"instance at {hex(id(self))}: {self.__dict__}>"
+        )
 
     def __getattr__(self, name):
         if name in self.attr2extype:

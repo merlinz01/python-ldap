@@ -55,8 +55,10 @@ TESTCASES_UTF8 = (
 
 # broken schema of Oracle Internet Directory
 TESTCASES_BROKEN_OID = (
-    "BLUBB DI 'BLU B B ER'MUST 'BLAH' ",  # ['BLUBB', 'DI', 'BLU B B ER', 'MUST', 'BLAH']
-    "BLUBBER DI 'BLU'BB ER' DA 'BLAH' ",  # ["BLUBBER", "DI", "BLU'BB ER", "DA", "BLAH"]
+    # ['BLUBB', 'DI', 'BLU B B ER', 'MUST', 'BLAH']
+    "BLUBB DI 'BLU B B ER'MUST 'BLAH' ",
+    # ["BLUBBER", "DI", "BLU'BB ER", "DA", "BLAH"]
+    "BLUBBER DI 'BLU'BB ER' DA 'BLAH' ",
 )
 
 # for quoted single quotes inside string values
@@ -104,7 +106,8 @@ class TestSplitTokens(unittest.TestCase):
                 should_have_failed.append(test_value)
         if should_have_failed:
             self.fail(
-                f"{len(should_have_failed)} value(s) should have raised ValueError: {should_have_failed}"
+                f"{len(should_have_failed)} value(s) should have raised "
+                f"ValueError: {should_have_failed}"
             )
 
     def test_basic(self):

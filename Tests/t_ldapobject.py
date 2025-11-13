@@ -659,10 +659,14 @@ class Test01_ReconnectLDAPObject(Test00_SimpleLDAPObject):
 
     def test106_reconnect_restore(self):
         """
-        The idea of this test is to stop the LDAP server, make a search and ignore the `SERVER_DOWN` exception which happens after the reconnect timeout
-        and then re-use the same connection when the LDAP server is available again.
-        After starting the server the LDAP connection can be re-used again as it will reconnect on the next operation.
-        Prior to fixing PR !267 the connection was reestablished but no `bind()` was done resulting in a anonymous search which caused `INSUFFICIENT_ACCESS` when anonymous seach is disallowed.
+        The idea of this test is to stop the LDAP server, make a search and
+        ignore the `SERVER_DOWN` exception which happens after the reconnect
+        timeout and then re-use the same connection when the LDAP server is
+        available again. After starting the server the LDAP connection can be
+        re-used again as it will reconnect on the next operation. Prior to
+        fixing PR !267 the connection was reestablished but no `bind()` was
+        done resulting in a anonymous search which caused `INSUFFICIENT_ACCESS`
+        when anonymous seach is disallowed.
         """
         lo = self.ldap_object_class(self.server.ldap_uri, retry_max=2, retry_delay=1)
         bind_dn = "cn=user1," + self.server.suffix
@@ -684,10 +688,11 @@ class Test01_ReconnectLDAPObject(Test00_SimpleLDAPObject):
 
     def test107_reconnect_restore(self):
         """
-        The idea of this test is to restart the LDAP-Server while there are ongoing searches.
-        This causes :class:`ldap.UNAVAILABLE` to be raised (with |OpenLDAP|) for a short time.
-        To increase the chance of triggering this bug we are starting multiple threads
-        with a large number of retry attempts in a short amount of time.
+        The idea of this test is to restart the LDAP-Server while there are
+        ongoing searches. This causes :class:`ldap.UNAVAILABLE` to be raised
+        (with |OpenLDAP|) for a short time. To increase the chance of
+        triggering this bug we are starting multiple threads with a large
+        number of retry attempts in a short amount of time.
         """
         excs = []
         thread_count = 10
@@ -727,7 +732,8 @@ class Test01_ReconnectLDAPObject(Test00_SimpleLDAPObject):
             t.start()
 
         start_barrier.wait()  # wait until all threads are ready to start
-        self.server.restart()  # restart after all threads have started their search loop
+        # restart after all threads have started their search loop
+        self.server.restart()
 
         for t in threads:
             t.join()

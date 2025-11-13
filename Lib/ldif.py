@@ -334,7 +334,8 @@ class LDIFParser:
         """
         if self._last_line is None:
             raise EOFError(
-                f"EOF reached after {self.line_counter} lines ({self.byte_counter} bytes)"
+                f"EOF reached after {self.line_counter} lines "
+                f"({self.byte_counter} bytes)"
             )
         unfolded_lines = [self._last_line]
         next_line = self._readline()
@@ -434,14 +435,16 @@ class LDIFParser:
             # Consume first line which must start with "dn: "
             if k != "dn":
                 raise ValueError(
-                    f'Line {self.line_counter}: First line of record does not start with "dn:": {k!r}'
+                    f"Line {self.line_counter}: First line of record does not "
+                    f'start with "dn:": {k!r}'
                 )
             # Value of a 'dn' field *has* to be valid UTF-8
             # k is text, v is bytes.
             v = v.decode("utf-8")
             if not is_dn(v):
                 raise ValueError(
-                    f"Line {self.line_counter}: Not a valid string-representation for dn: {v!r}."
+                    f"Line {self.line_counter}: Not a valid "
+                    f"string-representation for dn: {v!r}."
                 )
             dn = v
             entry = {}
@@ -499,14 +502,16 @@ class LDIFParser:
             # Consume first line which must start with "dn: "
             if k != "dn":
                 raise ValueError(
-                    f'Line {self.line_counter}: First line of record does not start with "dn:": {k!r}'
+                    f"Line {self.line_counter}: First line of record does not "
+                    f'start with "dn:": {k!r}'
                 )
             # Value of a 'dn' field *has* to be valid UTF-8
             # k is text, v is bytes.
             v = v.decode("utf-8")
             if not is_dn(v):
                 raise ValueError(
-                    f"Line {self.line_counter}: Not a valid string-representation for dn: {v!r}."
+                    f"Line {self.line_counter}: Not a valid "
+                    f"string-representation for dn: {v!r}."
                 )
             dn = v
             # Consume second line of record
@@ -547,10 +552,12 @@ class LDIFParser:
                             modop = MOD_OP_INTEGER[k]
                         except KeyError as ke:
                             raise ValueError(
-                                f"Line {self.line_counter}: Invalid mod-op string: {k!r}"
+                                f"Line {self.line_counter}: Invalid mod-op "
+                                f"string: {k!r}"
                             ) from ke
                         # we now have the attribute name to be modified
-                        # v is still bytes, spec says it should be valid utf-8; decode it.
+                        # v is still bytes, spec says it should be valid utf-8;
+                        # decode it.
                         v = v.decode("utf-8")
                         modattr = v
                         modvalues = []
