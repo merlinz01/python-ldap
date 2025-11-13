@@ -6,6 +6,9 @@ See https://www.python-ldap.org/ for details.
 
 import struct
 
+from pyasn1.codec.ber import decoder, encoder
+from pyasn1.type import univ
+
 import ldap
 from ldap.controls import (
     KNOWN_RESPONSE_CONTROLS,
@@ -13,8 +16,6 @@ from ldap.controls import (
     RequestControl,
     ResponseControl,
 )
-from pyasn1.codec.ber import decoder, encoder
-from pyasn1.type import univ
 
 
 class ValueLessRequestControl(RequestControl):

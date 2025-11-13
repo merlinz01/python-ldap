@@ -11,13 +11,14 @@ __all__ = [
 ]
 
 
+from pyasn1.codec.ber import decoder, encoder
+from pyasn1.type import constraint, namedtype, namedval, tag, univ
+
 from ldap.controls import (
     KNOWN_RESPONSE_CONTROLS,
     RequestControl,
     ResponseControl,
 )
-from pyasn1.codec.ber import decoder, encoder
-from pyasn1.type import constraint, namedtype, namedval, tag, univ
 
 #    SortKeyList ::= SEQUENCE OF SEQUENCE {
 #                     attributeType   AttributeDescription,

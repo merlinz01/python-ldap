@@ -5,11 +5,11 @@ ldap.controls.readentry - classes for the Read Entry controls
 See https://www.python-ldap.org/ for project details.
 """
 
+from pyasn1.codec.ber import decoder, encoder
 from pyasn1_modules.rfc2251 import AttributeDescriptionList, SearchResultEntry
 
 import ldap
 from ldap.controls import KNOWN_RESPONSE_CONTROLS, LDAPControl
-from pyasn1.codec.ber import decoder, encoder
 
 
 class ReadEntryControl(LDAPControl):

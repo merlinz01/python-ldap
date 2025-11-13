@@ -8,15 +8,16 @@ See https://www.python-ldap.org/ for project details.
 __all__ = ["PasswordPolicyControl"]
 
 # Imports from python-ldap 2.4+
+from pyasn1.codec.der import decoder
+
+# Imports from pyasn1
+from pyasn1.type import constraint, namedtype, namedval, tag, univ
+
 from ldap.controls import (
     KNOWN_RESPONSE_CONTROLS,
     ResponseControl,
     ValueLessRequestControl,
 )
-from pyasn1.codec.der import decoder
-
-# Imports from pyasn1
-from pyasn1.type import constraint, namedtype, namedval, tag, univ
 
 
 class PasswordPolicyWarning(univ.Choice):

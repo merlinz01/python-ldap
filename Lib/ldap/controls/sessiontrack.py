@@ -5,11 +5,11 @@ ldap.controls.sessiontrack - class for session tracking control
 See https://www.python-ldap.org/ for project details.
 """
 
+from pyasn1.codec.ber import encoder
+from pyasn1.type import namedtype, univ
 from pyasn1_modules.rfc2251 import LDAPOID, LDAPString
 
 from ldap.controls import RequestControl
-from pyasn1.codec.ber import encoder
-from pyasn1.type import namedtype, univ
 
 # OID constants
 SESSION_TRACKING_CONTROL_OID = "1.3.6.1.4.1.21008.108.63.1"

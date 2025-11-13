@@ -10,6 +10,8 @@ __all__ = [
     "DereferenceControl",
 ]
 
+from pyasn1.codec.ber import decoder, encoder
+from pyasn1.type import namedtype, tag, univ
 from pyasn1_modules.rfc2251 import (
     LDAPDN,
     AttributeDescription,
@@ -18,8 +20,6 @@ from pyasn1_modules.rfc2251 import (
 )
 
 from ldap.controls import KNOWN_RESPONSE_CONTROLS, LDAPControl
-from pyasn1.codec.ber import decoder, encoder
-from pyasn1.type import namedtype, tag, univ
 
 DEREF_CONTROL_OID = "1.3.6.1.4.1.4203.666.5.16"
 

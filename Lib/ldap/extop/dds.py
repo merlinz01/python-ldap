@@ -5,13 +5,13 @@ ldap.extop.dds - Classes for Dynamic Entries extended operations
 See https://www.python-ldap.org/ for details.
 """
 
-from pyasn1_modules.rfc2251 import LDAPDN
-
-from ldap.extop import ExtendedRequest, ExtendedResponse
 from pyasn1.codec.der import decoder, encoder
 
 # Imports from pyasn1
 from pyasn1.type import namedtype, tag, univ
+from pyasn1_modules.rfc2251 import LDAPDN
+
+from ldap.extop import ExtendedRequest, ExtendedResponse
 
 
 class RefreshRequest(ExtendedRequest):

@@ -8,10 +8,11 @@ The ldap.controls module provides LDAPControl classes.
 Each class provides support for a certain control.
 """
 
+from pyasn1.error import PyAsn1Error
+
 import _ldap
 import ldap
 from ldap.pkginfo import __version__
-from pyasn1.error import PyAsn1Error
 
 assert _ldap.__version__ == __version__, ImportError(
     f"ldap {__version__} and _ldap {_ldap.__version__} version mismatch!"

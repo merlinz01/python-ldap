@@ -8,13 +8,13 @@ See https://www.python-ldap.org/ for project details.
 __all__ = ["SimplePagedResultsControl"]
 
 # Imports from python-ldap 2.4+
-from pyasn1_modules.rfc2251 import LDAPString
-
-from ldap.controls import KNOWN_RESPONSE_CONTROLS, RequestControl, ResponseControl
 from pyasn1.codec.ber import decoder, encoder
 
 # Imports from pyasn1
 from pyasn1.type import namedtype, univ
+from pyasn1_modules.rfc2251 import LDAPString
+
+from ldap.controls import KNOWN_RESPONSE_CONTROLS, RequestControl, ResponseControl
 
 
 class PagedResultsControlValue(univ.Sequence):

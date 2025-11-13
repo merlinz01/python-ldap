@@ -6,12 +6,13 @@ See https://www.python-ldap.org/ for project details.
 
 from uuid import UUID
 
-from ldap import RES_INTERMEDIATE, RES_SEARCH_ENTRY, RES_SEARCH_RESULT
-from ldap.controls import KNOWN_RESPONSE_CONTROLS, RequestControl, ResponseControl
 from pyasn1.codec.ber import decoder, encoder
 
 # Imports from pyasn1
 from pyasn1.type import constraint, namedtype, namedval, tag, univ
+
+from ldap import RES_INTERMEDIATE, RES_SEARCH_ENTRY, RES_SEARCH_RESULT
+from ldap.controls import KNOWN_RESPONSE_CONTROLS, RequestControl, ResponseControl
 
 __all__ = [
     "SyncreplConsumer",

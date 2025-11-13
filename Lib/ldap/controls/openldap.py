@@ -4,10 +4,11 @@ ldap.controls.openldap - classes for OpenLDAP-specific controls
 See https://www.python-ldap.org/ for project details.
 """
 
-import ldap.controls
-from ldap.controls import ResponseControl, ValueLessRequestControl
 from pyasn1.codec.ber import decoder
 from pyasn1.type import univ
+
+import ldap.controls
+from ldap.controls import ResponseControl, ValueLessRequestControl
 
 __all__ = [
     "SearchNoOpControl",
