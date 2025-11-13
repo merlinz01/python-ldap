@@ -69,6 +69,7 @@ jobs:
     name: "Test with tox env ${{ matrix.tox_env }} on Fedora"
     runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
         tox_env:
           - py39
