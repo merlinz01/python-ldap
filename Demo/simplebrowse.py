@@ -13,8 +13,8 @@ dn = "dc=openldap,dc=org"
 
 print("Connecting to", url)
 
-l = ldap.initialize(url)
-l.bind_s("", "", ldap.AUTH_SIMPLE)
+ldap_conn = ldap.initialize(url)
+ldap_conn.bind_s("", "", ldap.AUTH_SIMPLE)
 lastdn = dn
 dnlist = None
 
@@ -47,7 +47,9 @@ while 1:
             # We're not interested in attributes at this stage, so
             # we specify [] as the list of attribute names to retreive.
             #
-            for name, _ in l.search_s(dn, ldap.SCOPE_ONELEVEL, "objectclass=*", []):
+            for name, _ in ldap_conn.search_s(
+                dn, ldap.SCOPE_ONELEVEL, "objectclass=*", []
+            ):
                 # -- shorten resulting dns for output brevity
                 if name.startswith(dn + ", "):
                     shortname = "+ " + name[len(dn) + 2 :]
@@ -91,7 +93,7 @@ while 1:
             # the client to receive all attributes on the DN.
             #
             print("Attributes of", repr(dn), ":")
-            for name, attrs in l.search_s(dn, ldap.SCOPE_BASE, "objectclass=*"):
+            for name, attrs in ldap_conn.search_s(dn, ldap.SCOPE_BASE, "objectclass=*"):
                 print(f" {name:24s}")
                 for k, vals in attrs.items():
                     for v in vals:
@@ -110,7 +112,7 @@ while 1:
             #
             expr = cmd[1:]
             print("Descendents matching filter", repr(expr), ":")
-            for name, _ in l.search_s(dn, ldap.SCOPE_SUBTREE, expr, []):
+            for name, _ in ldap_conn.search_s(dn, ldap.SCOPE_SUBTREE, expr, []):
                 print("  %24s", name)
 
         else:

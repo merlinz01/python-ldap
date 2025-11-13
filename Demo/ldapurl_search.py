@@ -23,16 +23,16 @@ print("***trace_level", trace_level)
 
 ldap.trace_level = trace_level
 
-l = LDAPObject(
+ldap_conn = LDAPObject(
     ldap_url.initializeUrl(),
     trace_level=trace_level,
 )
 
-l.protocol_version = 3
-l.set_option(ldap.OPT_REFERRALS, 0)
-l.simple_bind_s((ldap_url.who or ""), (ldap_url.cred or ""))
+ldap_conn.protocol_version = 3
+ldap_conn.set_option(ldap.OPT_REFERRALS, 0)
+ldap_conn.simple_bind_s((ldap_url.who or ""), (ldap_url.cred or ""))
 
-result = l.search_s(
+result = ldap_conn.search_s(
     ldap_url.dn,
     ldap_url.scope or ldap.SCOPE_SUBTREE,
     ldap_url.filterstr or "(objectClass=*)",
@@ -41,6 +41,6 @@ result = l.search_s(
 
 pprint.pprint(result)
 
-print("***DIAGNOSTIC_MESSAGE", repr(l.get_option(ldap.OPT_DIAGNOSTIC_MESSAGE)))
+print("***DIAGNOSTIC_MESSAGE", repr(ldap_conn.get_option(ldap.OPT_DIAGNOSTIC_MESSAGE)))
 
-l.unbind_s()
+ldap_conn.unbind_s()

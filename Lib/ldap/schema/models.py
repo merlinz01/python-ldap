@@ -62,12 +62,12 @@ class SchemaElement:
         if isinstance(schema_element_str, bytes):
             schema_element_str = schema_element_str.decode("utf-8")
         if schema_element_str:
-            l = split_tokens(schema_element_str)
-            self.set_id(l[1])
-            d = extract_tokens(l, self.token_defaults)
-            self._set_attrs(l, d)
+            tokens = split_tokens(schema_element_str)
+            self.set_id(tokens[1])
+            d = extract_tokens(tokens, self.token_defaults)
+            self._set_attrs(tokens, d)
 
-    def _set_attrs(self, l, d):
+    def _set_attrs(self, tokens, d):
         self.desc = d["DESC"][0]
         return
 
@@ -166,7 +166,7 @@ class ObjectClass(SchemaElement):
         "X-ORIGIN": (),
     }
 
-    def _set_attrs(self, l, d):
+    def _set_attrs(self, tokens, d):
         self.obsolete = d["OBSOLETE"] is not None
         self.names = d["NAME"]
         self.desc = d["DESC"][0]
@@ -280,7 +280,7 @@ class AttributeType(SchemaElement):
         "X-ORDERED": (None,),
     }
 
-    def _set_attrs(self, l, d):
+    def _set_attrs(self, tokens, d):
         self.names = d["NAME"]
         self.desc = d["DESC"][0]
         self.obsolete = d["OBSOLETE"] is not None
@@ -305,7 +305,7 @@ class AttributeType(SchemaElement):
                 except ValueError:
                     self.syntax = d["SYNTAX"][0]
                     self.syntax_len = None
-                    for i in l:
+                    for i in tokens:
                         if i.startswith("{") and i.endswith("}"):
                             self.syntax_len = int(i[1:-1])
                 else:
@@ -365,7 +365,7 @@ class LDAPSyntax(SchemaElement):
         "X-SUBST": (None,),
     }
 
-    def _set_attrs(self, l, d):
+    def _set_attrs(self, tokens, d):
         self.desc = d["DESC"][0]
         self.x_subst = d["X-SUBST"][0]
         self.not_human_readable = (
@@ -416,7 +416,7 @@ class MatchingRule(SchemaElement):
         "SYNTAX": (None,),
     }
 
-    def _set_attrs(self, l, d):
+    def _set_attrs(self, tokens, d):
         self.names = d["NAME"]
         self.desc = d["DESC"][0]
         self.obsolete = d["OBSOLETE"] is not None
@@ -463,7 +463,7 @@ class MatchingRuleUse(SchemaElement):
         "APPLIES": (()),
     }
 
-    def _set_attrs(self, l, d):
+    def _set_attrs(self, tokens, d):
         self.names = d["NAME"]
         self.desc = d["DESC"][0]
         self.obsolete = d["OBSOLETE"] is not None
@@ -527,7 +527,7 @@ class DITContentRule(SchemaElement):
         "NOT": (()),
     }
 
-    def _set_attrs(self, l, d):
+    def _set_attrs(self, tokens, d):
         self.names = d["NAME"]
         self.desc = d["DESC"][0]
         self.obsolete = d["OBSOLETE"] is not None
@@ -591,7 +591,7 @@ class DITStructureRule(SchemaElement):
     def get_id(self):
         return self.ruleid
 
-    def _set_attrs(self, l, d):
+    def _set_attrs(self, tokens, d):
         self.names = d["NAME"]
         self.desc = d["DESC"][0]
         self.obsolete = d["OBSOLETE"] is not None
@@ -649,7 +649,7 @@ class NameForm(SchemaElement):
         "MAY": (()),
     }
 
-    def _set_attrs(self, l, d):
+    def _set_attrs(self, tokens, d):
         self.names = d["NAME"]
         self.desc = d["DESC"][0]
         self.obsolete = d["OBSOLETE"] is not None
@@ -696,9 +696,9 @@ class Entry(UserDict):
         except KeyError:
             # Mapping has to be constructed
             oid = self._s.getoid(ldap.schema.AttributeType, nameoroid)
-            l = nameoroid.lower().split(";")
-            l[0] = oid
-            t = tuple(l)
+            parts = nameoroid.lower().split(";")
+            parts[0] = oid
+            t = tuple(parts)
             self._attrtype2keytuple[nameoroid] = t
             return t
 

@@ -16,8 +16,8 @@ class MyLDAPObject(LDAPObject, ResultProcessor):
 
 uri = "ldap://ipa.demo1.freeipa.org"
 
-l = MyLDAPObject(uri, trace_level=0)
-l.simple_bind_s(
+ldap_conn = MyLDAPObject(uri, trace_level=0)
+ldap_conn.simple_bind_s(
     "uid=admin,cn=users,cn=accounts,dc=demo1,dc=freeipa,dc=org", "Secret123"
 )
 
@@ -25,7 +25,7 @@ for id_attr in ("uidNumber", "gidNumber"):
     # reverse sorting request control
     sss_control = SSSRequestControl(ordering_rules=[f"-{id_attr}"])
     # send search request
-    msg_id = l.search_ext(
+    msg_id = ldap_conn.search_ext(
         "dc=demo1,dc=freeipa,dc=org",
         ldap.SCOPE_SUBTREE,
         f"({id_attr}=*)",
@@ -36,7 +36,7 @@ for id_attr in ("uidNumber", "gidNumber"):
     # collect result
     ldap_result = []
     try:
-        for _res_type, res_data, _res_msgid, _res_controls in l.allresults(
+        for _res_type, res_data, _res_msgid, _res_controls in ldap_conn.allresults(
             msg_id, add_ctrls=0
         ):
             ldap_result.extend(res_data)

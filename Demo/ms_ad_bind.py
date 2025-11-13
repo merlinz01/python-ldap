@@ -11,16 +11,16 @@ password = "testsecret"
 
 trace_level = 2
 
-l = ldap.initialize(ldap_uri, trace_level=trace_level)
+ldap_conn = ldap.initialize(ldap_uri, trace_level=trace_level)
 
 # Normal LDAPv3 compliant simple bind
-l.simple_bind_s(dn, password)
+ldap_conn.simple_bind_s(dn, password)
 
 # This is AD-specific and not LDAPv3 compliant
-l.simple_bind_s(userPrincipalName, password)
+ldap_conn.simple_bind_s(userPrincipalName, password)
 
 # This is AD-specific and not LDAPv3 compliant
-l.simple_bind_s(userPrincipalName, password)
+ldap_conn.simple_bind_s(userPrincipalName, password)
 
 # SASL bind with mech DIGEST-MD5 with sAMAccountName as SASL user name
 sasl_auth = ldap.sasl.sasl(
@@ -30,10 +30,10 @@ sasl_auth = ldap.sasl.sasl(
     },
     "DIGEST-MD5",
 )
-l.sasl_interactive_bind_s("", sasl_auth)
+ldap_conn.sasl_interactive_bind_s("", sasl_auth)
 
 # SASL bind with mech GSSAPI
 # with the help of Kerberos V TGT obtained before with command
 # kinit ablume@ADDOMAIN.EXAMPLE.COM
 sasl_auth = ldap.sasl.sasl({}, "GSSAPI")
-l.sasl_interactive_bind_s("", sasl_auth)
+ldap_conn.sasl_interactive_bind_s("", sasl_auth)

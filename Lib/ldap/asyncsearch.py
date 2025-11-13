@@ -42,8 +42,8 @@ class AsyncSearchHandler:
       LDAPObject instance
     """
 
-    def __init__(self, l):
-        self._l = l
+    def __init__(self, ldap_conn):
+        self._l = ldap_conn
         self._msgId = None
         self._afterFirstResult = 1
 
@@ -184,8 +184,8 @@ class List(AsyncSearchHandler):
     results.
     """
 
-    def __init__(self, l):
-        AsyncSearchHandler.__init__(self, l)
+    def __init__(self, ldap_conn):
+        AsyncSearchHandler.__init__(self, ldap_conn)
         self.allResults = []
 
     def _processSingleResult(self, resultType, resultItem):
@@ -197,8 +197,8 @@ class Dict(AsyncSearchHandler):
     Class for collecting all search results into a dictionary {dn:entry}
     """
 
-    def __init__(self, l):
-        AsyncSearchHandler.__init__(self, l)
+    def __init__(self, ldap_conn):
+        AsyncSearchHandler.__init__(self, ldap_conn)
         self.allEntries = {}
 
     def _processSingleResult(self, resultType, resultItem):
@@ -214,8 +214,8 @@ class IndexedDict(Dict):
     and maintain case-sensitive equality indexes to entries
     """
 
-    def __init__(self, l, indexed_attrs=None):
-        Dict.__init__(self, l)
+    def __init__(self, ldap_conn, indexed_attrs=None):
+        Dict.__init__(self, ldap_conn)
         self.indexed_attrs = indexed_attrs or ()
         self.index = {}.fromkeys(self.indexed_attrs, {})
 
@@ -244,8 +244,8 @@ class FileWriter(AsyncSearchHandler):
       File object instance where the LDIF data is written to
     """
 
-    def __init__(self, l, f, headerStr="", footerStr=""):
-        AsyncSearchHandler.__init__(self, l)
+    def __init__(self, ldap_conn, f, headerStr="", footerStr=""):
+        AsyncSearchHandler.__init__(self, ldap_conn)
         self._f = f
         self.headerStr = headerStr
         self.footerStr = footerStr
@@ -277,13 +277,13 @@ class LDIFWriter(FileWriter):
       Either a file-like object or a ldif.LDIFWriter instance used for output
     """
 
-    def __init__(self, l, writer_obj, headerStr="", footerStr=""):
+    def __init__(self, ldap_conn, writer_obj, headerStr="", footerStr=""):
         if isinstance(writer_obj, ldif.LDIFWriter):
             self._ldif_writer = writer_obj
         else:
             self._ldif_writer = ldif.LDIFWriter(writer_obj)
         FileWriter.__init__(
-            self, l, self._ldif_writer._output_file, headerStr, footerStr
+            self, ldap_conn, self._ldif_writer._output_file, headerStr, footerStr
         )
 
     def _processSingleResult(self, resultType, resultItem):

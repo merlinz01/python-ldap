@@ -68,11 +68,11 @@ SAFE_STRING_PATTERN = b"(^(\000|\n|\r| |:|<)|[\000\n\r\200-\377]+|[ ]+$)"
 safe_string_re = re.compile(SAFE_STRING_PATTERN)
 
 
-def list_dict(l):
+def list_dict(items):
     """
-    return a dictionary with all items of l being the keys of the dictionary
+    return a dictionary with all items of items being the keys of the dictionary
     """
-    return dict.fromkeys(l)
+    return dict.fromkeys(items)
 
 
 class LDIFWriter:

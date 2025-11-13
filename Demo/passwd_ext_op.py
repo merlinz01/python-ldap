@@ -25,16 +25,16 @@ newpw = getpass.getpass()
 ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, "/etc/httpd/ssl.crt/myCA-cacerts.pem")
 
 # Create LDAPObject instance
-l = ldap.initialize(
+ldap_conn = ldap.initialize(
     lu.initializeUrl(),
     trace_level=ldapmodule_trace_level,
     trace_file=ldapmodule_trace_file,
 )
 
-l.protocol_version = ldap.VERSION3
+ldap_conn.protocol_version = ldap.VERSION3
 
-l.simple_bind_s(lu.dn, oldpw)
+ldap_conn.simple_bind_s(lu.dn, oldpw)
 
-l.passwd(lu.dn, oldpw, newpw)
+ldap_conn.passwd(lu.dn, oldpw, newpw)
 
-l.unbind_s()
+ldap_conn.unbind_s()

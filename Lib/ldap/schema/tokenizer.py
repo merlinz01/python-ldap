@@ -51,34 +51,34 @@ def split_tokens(s):
     return parts
 
 
-def extract_tokens(l, known_tokens):
+def extract_tokens(tokens, known_tokens):
     """
     Returns dictionary of known tokens with all values
     """
-    assert l[0].strip() == "(" and l[-1].strip() == ")", ValueError(l)
+    assert tokens[0].strip() == "(" and tokens[-1].strip() == ")", ValueError(tokens)
     result = {}
     result.update(known_tokens)
     i = 0
-    l_len = len(l)
-    while i < l_len:
-        if l[i] in result:
-            token = l[i]
+    tokens_len = len(tokens)
+    while i < tokens_len:
+        if tokens[i] in result:
+            token = tokens[i]
             i += 1  # Consume token
-            if i < l_len:
-                if l[i] in result:
+            if i < tokens_len:
+                if tokens[i] in result:
                     # non-valued
                     result[token] = ()
-                elif l[i] == "(":
+                elif tokens[i] == "(":
                     # multi-valued
                     i += 1  # Consume left parentheses
                     start = i
-                    while i < l_len and l[i] != ")":
+                    while i < tokens_len and tokens[i] != ")":
                         i += 1
-                    result[token] = tuple(filter(lambda v: v != "$", l[start:i]))
+                    result[token] = tuple(filter(lambda v: v != "$", tokens[start:i]))
                     i += 1  # Consume right parentheses
                 else:
                     # single-valued
-                    result[token] = (l[i],)
+                    result[token] = (tokens[i],)
                     i += 1  # Consume single value
         else:
             i += 1  # Consume unrecognized item

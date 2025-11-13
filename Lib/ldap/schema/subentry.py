@@ -440,8 +440,8 @@ class SubSchema:
 
         # Apply attr_type_filter to results
         if attr_type_filter:
-            for l in [r_must, r_may]:
-                for a in list(l):
+            for attr_dict in [r_must, r_may]:
+                for a in list(attr_dict):
                     for afk, afv in attr_type_filter:
                         try:
                             schema_attr_type = self.sed[AttributeType][a]
@@ -452,11 +452,11 @@ class SubSchema:
                                 ) from ke
                             # If there's no schema element for this attribute type
                             # but still KeyError is to be ignored we filter it away
-                            del l[a]
+                            del attr_dict[a]
                             break
                         else:
                             if getattr(schema_attr_type, afk) not in afv:
-                                del l[a]
+                                del attr_dict[a]
                                 break
 
         return r_must, r_may  # attribute_types()
@@ -474,19 +474,19 @@ def urlfetch(uri, trace_level=0):
     if uri.startswith(("ldap:", "ldaps:", "ldapi:")):
         ldap_url = ldapurl.LDAPUrl(uri)
 
-        l = ldap.initialize(ldap_url.initializeUrl(), trace_level)
-        l.protocol_version = ldap.VERSION3
-        l.simple_bind_s(ldap_url.who or "", ldap_url.cred or "")
-        subschemasubentry_dn = l.search_subschemasubentry_s(ldap_url.dn)
+        ldap_conn = ldap.initialize(ldap_url.initializeUrl(), trace_level)
+        ldap_conn.protocol_version = ldap.VERSION3
+        ldap_conn.simple_bind_s(ldap_url.who or "", ldap_url.cred or "")
+        subschemasubentry_dn = ldap_conn.search_subschemasubentry_s(ldap_url.dn)
         if subschemasubentry_dn is None:
             s_temp = None
         else:
             schema_attrs = SCHEMA_ATTRS if ldap_url.attrs is None else ldap_url.attrs
-            s_temp = l.read_subschemasubentry_s(
+            s_temp = ldap_conn.read_subschemasubentry_s(
                 subschemasubentry_dn, attrs=schema_attrs
             )
-        l.unbind_s()
-        del l
+        ldap_conn.unbind_s()
+        del ldap_conn
     else:
         ldif_file = urlopen(uri)
         ldif_parser = ldif.LDIFRecordList(ldif_file, max_entries=1)

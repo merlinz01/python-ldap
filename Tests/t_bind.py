@@ -16,37 +16,37 @@ class TestBinds(SlapdTestCase):
     dn_bytes = dn_unicode.encode("utf-8")
 
     def _get_ldapobject(self, bytes_mode=None):
-        l = LDAPObject(self.server.ldap_uri, bytes_mode=bytes_mode)
-        l.protocol_version = 3
-        l.set_option(ldap.OPT_REFERRALS, 0)
-        return l
+        ldap_conn = LDAPObject(self.server.ldap_uri, bytes_mode=bytes_mode)
+        ldap_conn.protocol_version = 3
+        ldap_conn.set_option(ldap.OPT_REFERRALS, 0)
+        return ldap_conn
 
     def test_simple_bind(self):
-        l = self._get_ldapobject(False)
+        ldap_conn = self._get_ldapobject(False)
         with self.assertRaises(ldap.INVALID_CREDENTIALS):
-            l.simple_bind_s(self.dn_unicode, self.unicode_val)
+            ldap_conn.simple_bind_s(self.dn_unicode, self.unicode_val)
 
     def test_unicode_bind(self):
-        l = self._get_ldapobject(False)
-        l.simple_bind(self.dn_unicode, "ascii")
+        ldap_conn = self._get_ldapobject(False)
+        ldap_conn.simple_bind(self.dn_unicode, "ascii")
 
-        l = self._get_ldapobject(False)
-        l.simple_bind("CN=user", self.unicode_val)
+        ldap_conn = self._get_ldapobject(False)
+        ldap_conn.simple_bind("CN=user", self.unicode_val)
 
     def test_unicode_bind_no_bytesmode(self):
-        l = self._get_ldapobject(False)
+        ldap_conn = self._get_ldapobject(False)
         with self.assertRaises(TypeError):
-            l.simple_bind_s(self.dn_bytes, self.unicode_val)
+            ldap_conn.simple_bind_s(self.dn_bytes, self.unicode_val)
 
         # Works fine in Python 3 because 'cred' (the password) is read in
         # using the "s#" format which, unlike "s", accepts either a str
         # (unicode) *or* bytes.
         #
         # with self.assertRaises(TypeError):
-        #     l.simple_bind_s(self.dn_unicode, self.unicode_val_bytes)
+        #     ldap_conn.simple_bind_s(self.dn_unicode, self.unicode_val_bytes)
 
         with self.assertRaises(ldap.INVALID_CREDENTIALS):
-            l.simple_bind_s(self.dn_unicode, self.unicode_val)
+            ldap_conn.simple_bind_s(self.dn_unicode, self.unicode_val)
 
 
 if __name__ == "__main__":

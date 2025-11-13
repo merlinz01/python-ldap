@@ -11,8 +11,8 @@ class DeleteLeafs(ldap.asyncsearch.AsyncSearchHandler):
 
     _entryResultTypes = ldap.asyncsearch._entryResultTypes
 
-    def __init__(self, l):
-        ldap.asyncsearch.AsyncSearchHandler.__init__(self, l)
+    def __init__(self, ldap_conn):
+        ldap.asyncsearch.AsyncSearchHandler.__init__(self, ldap_conn)
         self.nonLeafEntries = []
         self.deletedEntries = 0
 
@@ -53,11 +53,11 @@ class DeleteLeafs(ldap.asyncsearch.AsyncSearchHandler):
                     self.deletedEntries = self.deletedEntries + 1
 
 
-def DelTree(l, dn, scope=ldap.SCOPE_ONELEVEL):
+def DelTree(ldap_conn, dn, scope=ldap.SCOPE_ONELEVEL):
     """
     Recursively delete entries below or including entry with name dn.
     """
-    leafs_deleter = DeleteLeafs(l)
+    leafs_deleter = DeleteLeafs(ldap_conn)
     leafs_deleter.startSearch(dn, scope)
     leafs_deleter.processResults()
     deleted_entries = leafs_deleter.deletedEntries
@@ -73,10 +73,10 @@ def DelTree(l, dn, scope=ldap.SCOPE_ONELEVEL):
 
 
 # Create LDAPObject instance
-l = ldap.initialize("ldap://localhost:1390")
+ldap_conn = ldap.initialize("ldap://localhost:1390")
 
 # Try a bind to provoke failure if protocol version is not supported
-l.simple_bind_s("cn=Directory Manager,dc=IMC,dc=org", "controller")
+ldap_conn.simple_bind_s("cn=Directory Manager,dc=IMC,dc=org", "controller")
 
 # Delete all entries *below* the entry dc=Delete,dc=IMC,dc=org
-DelTree(l, "dc=Delete,dc=IMC,dc=org", ldap.SCOPE_ONELEVEL)
+DelTree(ldap_conn, "dc=Delete,dc=IMC,dc=org", ldap.SCOPE_ONELEVEL)

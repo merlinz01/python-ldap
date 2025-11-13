@@ -3,18 +3,18 @@ import pprint
 import ldap
 from ldap.controls import BooleanControl, LDAPControl
 
-l = ldap.initialize("ldap://localhost:1390", trace_level=2)
+ldap_conn = ldap.initialize("ldap://localhost:1390", trace_level=2)
 
 print(60 * "#")
 
-pprint.pprint(l.get_option(ldap.OPT_SERVER_CONTROLS))
-l.manage_dsa_it(1, 1)
-pprint.pprint(l.get_option(ldap.OPT_SERVER_CONTROLS))
+pprint.pprint(ldap_conn.get_option(ldap.OPT_SERVER_CONTROLS))
+ldap_conn.manage_dsa_it(1, 1)
+pprint.pprint(ldap_conn.get_option(ldap.OPT_SERVER_CONTROLS))
 print(60 * "#")
 
 # Search with ManageDsaIT control (which has no value)
 pprint.pprint(
-    l.search_ext_s(
+    ldap_conn.search_ext_s(
         "cn=Test-Referral,ou=Testing,dc=stroeder,dc=de",
         ldap.SCOPE_BASE,
         "(objectClass=*)",
@@ -26,7 +26,7 @@ print(60 * "#")
 
 # Search with Subentries control (which has boolean value)
 pprint.pprint(
-    l.search_ext_s(
+    ldap_conn.search_ext_s(
         "dc=stroeder,dc=de",
         ldap.SCOPE_SUBTREE,
         "(objectClass=subentry)",

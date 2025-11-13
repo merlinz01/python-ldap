@@ -20,9 +20,9 @@ searchreq_attrlist = ["cn", "entryDN", "entryUUID", "mail", "objectClass"]
 
 # ldap.set_option(ldap.OPT_DEBUG_LEVEL,255)
 ldap.set_option(ldap.OPT_REFERRALS, 0)
-l = ldap.initialize(url, trace_level=trace_level)
-l.protocol_version = 3
-l.simple_bind_s(binddn, bindpw)
+ldap_conn = ldap.initialize(url, trace_level=trace_level)
+ldap_conn.protocol_version = 3
+ldap_conn.simple_bind_s(binddn, bindpw)
 
 req_ctrl = SimplePagedResultsControl(True, size=page_size, cookie="")
 
@@ -31,7 +31,7 @@ known_ldap_resp_ctrls = {
 }
 
 # Send search request
-msgid = l.search_ext(
+msgid = ldap_conn.search_ext(
     base,
     ldap.SCOPE_SUBTREE,
     search_flt,
@@ -44,7 +44,7 @@ while True:
     pages += 1
     print("-" * 60)
     print("Getting page", pages)
-    rtype, rdata, rmsgid, serverctrls = l.result3(
+    rtype, rdata, rmsgid, serverctrls = ldap_conn.result3(
         msgid, resp_ctrl_classes=known_ldap_resp_ctrls
     )
     print(len(rdata), "results")
@@ -59,7 +59,7 @@ while True:
         if pctrls[0].cookie:
             # Copy cookie from response control to request control
             req_ctrl.cookie = pctrls[0].cookie
-            msgid = l.search_ext(
+            msgid = ldap_conn.search_ext(
                 base,
                 ldap.SCOPE_SUBTREE,
                 search_flt,
@@ -72,4 +72,4 @@ while True:
         print("Warning:  Server ignores RFC 2696 control.")
         break
 
-l.unbind_s()
+ldap_conn.unbind_s()

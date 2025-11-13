@@ -13,12 +13,12 @@ class LDAPObject(ldap.ldapobject.LDAPObject, ldap.resiter.ResultProcessor):
     pass
 
 
-l = LDAPObject("ldap://localhost:1390", trace_level=1)
-l.protocol_version = 3
-msgid = l.search("dc=stroeder,dc=de", ldap.SCOPE_SUBTREE, "(cn=m*)")
+ldap_conn = LDAPObject("ldap://localhost:1390", trace_level=1)
+ldap_conn.protocol_version = 3
+msgid = ldap_conn.search("dc=stroeder,dc=de", ldap.SCOPE_SUBTREE, "(cn=m*)")
 
-result_iter = l.allresults(msgid)
+result_iter = ldap_conn.allresults(msgid)
 for result_type, result_list, result_msgid, result_serverctrls in result_iter:
     print(result_type, result_list, result_msgid, result_serverctrls)
 
-l.unbind_s()
+ldap_conn.unbind_s()

@@ -29,15 +29,17 @@ for a in [
 ]:
     print(a, repr(getattr(ldap_url, a)))
 
-l = ldap.initialize(ldap_url.initializeUrl(), trace_level=1)
+ldap_conn = ldap.initialize(ldap_url.initializeUrl(), trace_level=1)
 if ldap_url.who is not None:
     if ldap_url.cred is not None:
         cred = ldap_url.cred
     else:
         print("Enter password for simple bind with", repr(ldap_url.who))
         cred = getpass.getpass()
-    l.simple_bind_s(ldap_url.who, cred)
+    ldap_conn.simple_bind_s(ldap_url.who, cred)
 
-res = l.search_s(ldap_url.dn, ldap_url.scope, ldap_url.filterstr, ldap_url.attrs)
+res = ldap_conn.search_s(
+    ldap_url.dn, ldap_url.scope, ldap_url.filterstr, ldap_url.attrs
+)
 
 print(len(res), "search results")

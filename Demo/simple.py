@@ -5,12 +5,12 @@ import getpass
 import _ldap
 import ldap
 
-# l = ldap.open("localhost", 31001)
-l = ldap.open("marta.it.uq.edu.au")
+# ldap_conn = ldap.open("localhost", 31001)
+ldap_conn = ldap.open("marta.it.uq.edu.au")
 
 login_dn = "cn=root,ou=CSEE,o=UQ,c=AU"
 login_pw = getpass.getpass(f"Password for {login_dn}: ")
-l.simple_bind_s(login_dn, login_pw)
+ldap_conn.simple_bind_s(login_dn, login_pw)
 
 #
 # create a new sub organisation
@@ -19,7 +19,7 @@ l.simple_bind_s(login_dn, login_pw)
 try:
     dn = "ou=CSEE,o=UQ,c=AU"
     print("Adding", repr(dn))
-    l.add_s(
+    ldap_conn.add_s(
         dn,
         [
             ("objectclass", ["organizationalUnit"]),
@@ -42,9 +42,9 @@ dn = "cn=David Leonard,ou=CSEE,o=UQ,c=AU"
 print("Updating", repr(dn))
 
 with contextlib.suppress(builtins.BaseException):
-    l.delete_s(dn)
+    ldap_conn.delete_s(dn)
 
-l.add_s(
+ldap_conn.add_s(
     dn,
     [
         ("objectclass", ["organizationalPerson"]),
@@ -101,11 +101,11 @@ l.add_s(
 # search beneath the CSEE/UQ/AU tree
 #
 
-res = l.search_s(
+res = ldap_conn.search_s(
     "ou=CSEE, o=UQ, c=AU",
     _ldap.SCOPE_SUBTREE,
     "objectclass=*",
 )
 print(res)
 
-l.unbind()
+ldap_conn.unbind()

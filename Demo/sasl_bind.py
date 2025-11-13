@@ -57,21 +57,24 @@ for ldap_uri, sasl_mech, sasl_cb_value_dict in [
     sasl_auth = ldap.sasl.sasl(sasl_cb_value_dict, sasl_mech)
     print(20 * "*", sasl_auth.mech, 20 * "*")
     # Open the LDAP connection
-    l = ldap.initialize(ldap_uri, trace_level=0)
+    ldap_conn = ldap.initialize(ldap_uri, trace_level=0)
     # Set protocol version to LDAPv3 to enable SASL bind!
-    l.protocol_version = 3
+    ldap_conn.protocol_version = 3
     try:
-        l.sasl_interactive_bind_s("", sasl_auth)
+        ldap_conn.sasl_interactive_bind_s("", sasl_auth)
     except ldap.LDAPError as e:
         print("Error using SASL mechanism", sasl_auth.mech, str(e))
     else:
         print("Sucessfully bound using SASL mechanism:", sasl_auth.mech)
         try:
-            print("Result of Who Am I? ext. op:", repr(l.whoami_s()))
+            print("Result of Who Am I? ext. op:", repr(ldap_conn.whoami_s()))
         except ldap.LDAPError as e:
             print("Error using SASL mechanism", sasl_auth.mech, str(e))
         with contextlib.suppress(AttributeError):
-            print("OPT_X_SASL_USERNAME", repr(l.get_option(ldap.OPT_X_SASL_USERNAME)))
+            print(
+                "OPT_X_SASL_USERNAME",
+                repr(ldap_conn.get_option(ldap.OPT_X_SASL_USERNAME)),
+            )
 
-    l.unbind()
-    del l
+    ldap_conn.unbind()
+    del ldap_conn

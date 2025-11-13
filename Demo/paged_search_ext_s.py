@@ -96,16 +96,16 @@ class MyLDAPObject(ReconnectLDAPObject, PagedResultsSearchObject):
 
 # ldap.set_option(ldap.OPT_DEBUG_LEVEL,255)
 ldap.set_option(ldap.OPT_REFERRALS, 0)
-l = MyLDAPObject(url, trace_level=2, retry_max=100, retry_delay=2)
-l.protocol_version = 3
-l.simple_bind_s("", "")
-l.page_size = 10
+ldap_conn = MyLDAPObject(url, trace_level=2, retry_max=100, retry_delay=2)
+ldap_conn.protocol_version = 3
+ldap_conn.simple_bind_s("", "")
+ldap_conn.page_size = 10
 
 # Send search request
-result_pages, all_results = l.paged_search_ext_s(
+result_pages, all_results = ldap_conn.paged_search_ext_s(
     base, ldap.SCOPE_SUBTREE, search_flt, attrlist=searchreq_attrlist, serverctrls=None
 )
 
-l.unbind_s()
+ldap_conn.unbind_s()
 
 print("Received", len(all_results), "results in", result_pages, "pages.")

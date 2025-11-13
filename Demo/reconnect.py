@@ -11,11 +11,11 @@ ldap_url.applyDefaults(
 
 ldap.trace_level = 1
 
-l = ReconnectLDAPObject(ldap_url.initializeUrl(), trace_level=ldap.trace_level)
-l.protocol_version = ldap.VERSION3
+ldap_conn = ReconnectLDAPObject(ldap_url.initializeUrl(), trace_level=ldap.trace_level)
+ldap_conn.protocol_version = ldap.VERSION3
 
-l.simple_bind_s(ldap_url.who, ldap_url.cred)
+ldap_conn.simple_bind_s(ldap_url.who, ldap_url.cred)
 
 while 1:
-    l.search_s(ldap_url.dn, ldap_url.scope, ldap_url.filterstr, ldap_url.attrs)
+    ldap_conn.search_s(ldap_url.dn, ldap_url.scope, ldap_url.filterstr, ldap_url.attrs)
     sys.stdin.readline()
